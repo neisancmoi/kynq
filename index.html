@@ -13,6 +13,7 @@
 <body>
 
   <main>
+    <div id="ecran-carburant" class="ecran"></div>
     <!-- ECRAN 1 : la projection -->
     <section id="ecran-projection">
       <h1>Kynq</h1>
@@ -106,30 +107,54 @@
       <ul id="liste-pleins"></ul>
       <p id="historique-vide">Tes pleins apparaîtront ici.</p>
     </section>
+    </div>
 
-    <!-- ECRAN 5 : réglages -->
-    <section id="ecran-config">
-      <h2>Mon objectif</h2>
-      <label for="objectif">Objectif de consommation (L/100km)</label>
-      <input type="number" id="objectif" inputmode="decimal" step="0.1">
-      <p id="conseil-objectif">Vise un chiffre atteignable. Kynq te proposera mieux dès que tu auras deux pleins.</p>
-      <button id="btn-objectif">Enregistrer l'objectif</button>
+    <div id="ecran-abonnements" class="ecran" hidden>
+      <section>
+        <h2>Abonnements</h2>
+        <p>Bientôt disponible.</p>
+      </section>
+    </div>
 
-      <h2 class="titre-secondaire">Hausse du carburant</h2>
-      <label for="inflation">Hausse annuelle prévue (%)</label>
-      <input type="number" id="inflation" inputmode="decimal" step="0.5" min="0" max="20">
-      <p id="conseil-inflation">Sur les vingt dernières années, le carburant a augmenté d'environ 2 à 3 % par an en
-        moyenne selon les périodes, avec de fortes variations d'une année sur l'autre. Mets 0 pour projeter au prix
-        actuel.</p>
-      <button id="btn-inflation">Enregistrer la hausse</button>
+    <div id="ecran-reglages" class="ecran" hidden>
+      <!-- ECRAN 5 : réglages -->
+      <section id="ecran-config">
+        <h2>Mon objectif</h2>
+        <label for="objectif">Objectif de consommation (L/100km)</label>
+        <input type="number" id="objectif" inputmode="decimal" step="0.1">
+        <p id="conseil-objectif">Vise un chiffre atteignable. Kynq te proposera mieux dès que tu auras deux pleins.</p>
+        <button id="btn-objectif">Enregistrer l'objectif</button>
 
-      <h2 class="titre-secondaire">Mes données</h2>
-      <p id="rappel-export"></p>
-      <button id="btn-export">Exporter mes données</button>
-      <label for="fichier-import" class="btn-import">Importer un fichier</label>
-      <input type="file" id="fichier-import" accept=".json" hidden>
-    </section>
+        <h2 class="titre-secondaire">Hausse du carburant</h2>
+        <label for="inflation">Hausse annuelle prévue (%)</label>
+        <input type="number" id="inflation" inputmode="decimal" step="0.5" min="0" max="20">
+        <p id="conseil-inflation">Sur les vingt dernières années, le carburant a augmenté d'environ 2 à 3 % par an en
+          moyenne selon les périodes, avec de fortes variations d'une année sur l'autre. Mets 0 pour projeter au prix
+          actuel.</p>
+        <button id="btn-inflation">Enregistrer la hausse</button>
+
+        <h2 class="titre-secondaire">Mes données</h2>
+        <p id="rappel-export"></p>
+        <button id="btn-export">Exporter mes données</button>
+        <label for="fichier-import" class="btn-import">Importer un fichier</label>
+        <input type="file" id="fichier-import" accept=".json" hidden>
+      </section>
+    </div>
   </main>
+  <nav id="onglets">
+    <button class="onglet actif" data-ecran="carburant">
+      <span class="onglet-icone">⛽</span>
+      <span class="onglet-texte">Carburant</span>
+    </button>
+    <button class="onglet" data-ecran="abonnements">
+      <span class="onglet-icone">📋</span>
+      <span class="onglet-texte">Abonnements</span>
+    </button>
+    <button class="onglet" data-ecran="reglages">
+      <span class="onglet-icone">⚙</span>
+      <span class="onglet-texte">Réglages</span>
+    </button>
+  </nav>
 
   <!-- Modale générique -->
   <div id="modale" class="modale" hidden>

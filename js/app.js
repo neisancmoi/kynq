@@ -6,6 +6,7 @@
 
 import { comparer } from "./core/projection.js";
 import { sauvegarder, lire } from "./core/storage.js";
+import { initNavigation } from "./core/navigation.js";
 import {
     coutParKmTheorique,
     kmParAn,
@@ -293,6 +294,7 @@ function enregistrerPlein(km, litres, montant, dateSaisie) {
 
     sauvegarder("carburant", pleins);
     quitterEdition();
+    initNavigation();
     afficher();
 }
 

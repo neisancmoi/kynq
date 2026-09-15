@@ -563,3 +563,53 @@ button:active {
 #equiv-objectif[hidden] {
   display: none;
 }
+
+/* ---------- Navigation ---------- */
+body {
+  padding-bottom: 90px;
+}
+
+#onglets {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: var(--carte);
+  border-top: 1px solid var(--bordure);
+  padding: 6px 0 10px;
+  z-index: 50;
+}
+
+.onglet {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: var(--texte-secondaire);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.onglet-icone {
+  font-size: 20px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.onglet.actif {
+  color: var(--accent);
+}
+
+.onglet.actif .onglet-icone {
+  opacity: 1;
+}
+
+.ecran[hidden] {
+  display: none;
+}
