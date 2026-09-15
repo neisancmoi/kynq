@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kynq</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#12141a">
+</head>
+
+<body>
+
+  <main>
+    <!-- ECRAN 1 : la projection -->
+    <section id="ecran-projection">
+      <h1>Kynq</h1>
+
+      <div id="accueil" hidden>
+        <p class="accueil-phrase">Kynq te montre ce que ta conduite te coûtera sur les 5 prochaines années, et combien
+          tu récupères en consommant moins.</p>
+        <div class="accueil-exemple">
+          <span class="exemple-label">Par exemple</span>
+          <p class="exemple-texte">Passer de 7,5 à 6,5 L/100 sur 15 000 km par an, ça fait <strong>1 320 €
+              récupérés</strong> sur 5 ans. Soit 22 € par mois.</p>
+          <p class="exemple-note">Calculé sur un carburant à 1,75 € le litre.</p>
+        </div>
+        <p class="accueil-etapes">Pour démarrer, note ton prochain plein. À partir du deuxième plein complet, Kynq
+          calcule ta vraie consommation et ta projection.</p>
+      </div>
+
+      <p id="message-attente"></p>
+
+      <div id="resultats" hidden>
+        <p>Ta consommation</p>
+        <p id="conso-reelle">—</p>
+        <p id="tendance"></p>
+
+        <p class="bloc-projection">Sur les 5 prochaines années</p>
+        <p>Au rythme actuel</p>
+        <p id="projection-actuelle">—</p>
+        <p class="equiv" id="equiv-actuelle"></p>
+
+        <p id="label-objectif">Si tu descends à <span id="objectif-inline">—</span></p>
+        <p id="projection-objectif">—</p>
+        <p class="equiv" id="equiv-objectif"></p>
+
+        <p id="label-ecart">Écart récupérable</p>
+        <p id="ecart">—</p>
+        <p class="equiv" id="equiv-ecart"></p>
+        <p id="phrase-ecart"></p>
+        <p class="bloc-scenario" id="label-potentiel"></p>
+        <p id="potentiel">—</p>
+        <p class="equiv" id="equiv-potentiel"></p>
+        <p id="phrase-potentiel"></p>
+        <p id="base-calcul"></p>
+        <p id="note-hypothese"></p>
+        <p id="note-anomalies"></p>
+
+        <p class="bloc-projection">Depuis le début</p>
+        <p>Total dépensé</p>
+        <p id="total-depense">—</p>
+        <p class="equiv" id="total-detail"></p>
+        <p>Coût au kilomètre</p>
+        <p id="cout-km">—</p>
+      </div>
+    </section>
+
+    <!-- ECRAN 2 : la saisie -->
+    <section id="ecran-saisie">
+      <h2 id="titre-saisie">Nouveau plein</h2>
+
+      <label for="date-plein">Date du plein</label>
+      <input type="date" id="date-plein">
+
+      <label for="km">Kilométrage au compteur</label>
+      <input type="number" id="km" inputmode="numeric">
+
+      <label for="litres">Litres</label>
+      <input type="number" id="litres" inputmode="decimal" step="0.01">
+
+      <label for="montant">Montant payé (€)</label>
+      <input type="number" id="montant" inputmode="decimal" step="0.01">
+
+      <label class="case-a-cocher">
+        <input type="checkbox" id="plein-complet" checked>
+        <span>Réservoir rempli à fond<br><small>Nécessaire pour calculer ta consommation</small></span>
+      </label>
+
+      <button id="btn-enregistrer">Enregistrer</button>
+      <button id="btn-annuler" class="btn-secondaire" hidden>Annuler la modification</button>
+    </section>
+
+    <!-- ECRAN 3 : évolution -->
+    <section id="ecran-graphique">
+      <h2>Évolution de ta consommation</h2>
+      <div id="zone-graphique"></div>
+      <p id="graphique-vide">Il faut trois pleins complets pour tracer une courbe.</p>
+    </section>
+
+    <!-- ECRAN 4 : l'historique -->
+    <section id="ecran-historique">
+      <h2>Historique</h2>
+      <p class="legende-prix" id="legende-prix"></p>
+      <ul id="liste-pleins"></ul>
+      <p id="historique-vide">Tes pleins apparaîtront ici.</p>
+    </section>
+
+    <!-- ECRAN 5 : réglages -->
+    <section id="ecran-config">
+      <h2>Mon objectif</h2>
+      <label for="objectif">Objectif de consommation (L/100km)</label>
+      <input type="number" id="objectif" inputmode="decimal" step="0.1">
+      <p id="conseil-objectif">Vise un chiffre atteignable. Kynq te proposera mieux dès que tu auras deux pleins.</p>
+      <button id="btn-objectif">Enregistrer l'objectif</button>
+
+      <h2 class="titre-secondaire">Hausse du carburant</h2>
+      <label for="inflation">Hausse annuelle prévue (%)</label>
+      <input type="number" id="inflation" inputmode="decimal" step="0.5" min="0" max="20">
+      <p id="conseil-inflation">Sur les vingt dernières années, le carburant a augmenté d'environ 2 à 3 % par an en
+        moyenne selon les périodes, avec de fortes variations d'une année sur l'autre. Mets 0 pour projeter au prix
+        actuel.</p>
+      <button id="btn-inflation">Enregistrer la hausse</button>
+
+      <h2 class="titre-secondaire">Mes données</h2>
+      <p id="rappel-export"></p>
+      <button id="btn-export">Exporter mes données</button>
+      <label for="fichier-import" class="btn-import">Importer un fichier</label>
+      <input type="file" id="fichier-import" accept=".json" hidden>
+    </section>
+  </main>
+
+  <!-- Modale générique -->
+  <div id="modale" class="modale" hidden>
+    <div class="modale-boite">
+      <p class="modale-titre" id="modale-titre"></p>
+      <p class="modale-detail" id="modale-detail"></p>
+      <div class="modale-actions">
+        <button id="modale-annuler" class="btn-secondaire">Annuler</button>
+        <button id="modale-confirmer">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+</body>
+
+</html>
