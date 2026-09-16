@@ -742,3 +742,94 @@ select:focus {
   color: var(--texte-secondaire);
   margin: 0;
 }
+
+/* ---------- Vue totale ---------- */
+#total-projection {
+  text-align: center;
+}
+
+#total-resultats p {
+  margin: 0;
+}
+
+#total-resultats p:not([id]) {
+  color: var(--texte-secondaire);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-top: 22px;
+  margin-bottom: 6px;
+}
+
+#total-mensuel {
+  font-size: 34px;
+  font-weight: 700;
+}
+
+#total-5ans {
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+#total-phrase {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--texte-secondaire);
+  margin-top: 10px !important;
+}
+
+#total-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#total-liste li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--bordure);
+}
+
+#total-liste li:last-child {
+  border-bottom: none;
+}
+
+.total-domaine {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--texte);
+}
+
+.total-montant {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: right;
+}
+
+.total-part {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: var(--texte-secondaire);
+}
+
+.total-barre {
+  grid-column: 1 / -1;
+  height: 4px;
+  background: var(--bordure);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.total-barre span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+}

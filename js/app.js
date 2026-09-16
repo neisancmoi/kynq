@@ -7,6 +7,7 @@
 import { comparer, projeter } from "./core/projection.js";
 import { sauvegarder, lire } from "./core/storage.js";
 import { initNavigation } from "./core/navigation.js";
+import { afficherTotal } from "./core/total.js";
 import { totalMensuel } from "./modules/abonnements/calculs.js";
 import {
     afficherResultats as afficherAboResultats,
@@ -572,6 +573,7 @@ function afficherAbonnements() {
     }
 
     afficherAboListe(abonnements, projeterMensuel);
+    afficherVueTotale();
 
     if (abonnements.length === 0) {
         afficherAboResultats(null);
@@ -587,10 +589,33 @@ function afficherAbonnements() {
         inflation: config.inflation
     });
 }
+// ---------- Vue totale ----------
 
+// Chaque module fournit son coût mensuel. Le cumul ne calcule rien lui-même.
+function mensuelCarburant() {
+    const segment = dernierSegment(pleins);
+    if (segment === null) { return 0; }
+
+    const kmAn = kmParAn(pleins);
+    if (kmAn === null) { return 0; }
+
+    const prixMoyen = prixMoyenLitre(pleins);
+    const coutKm = coutParKmTheorique(segment.conso, prixMoyen);
+
+    // Coût annuel ramené au mois
+    return (coutKm * kmAn) / 12;
+}
+
+function afficherVueTotale() {
+    afficherTotal([
+        { nom: "Carburant", mensuel: mensuelCarburant() },
+        { nom: "Abonnements", mensuel: totalMensuel(abonnements) }
+    ], config.inflation);
+}
 // ---------- Calcule tout et demande l'affichage ----------
 
 function afficher() {
+    afficherVueTotale();
     afficherHistorique(pleins);
     afficherGraphique(pleins, config.objectifConso);
     afficherConseilObjectif(pleins, config.objectifConso);

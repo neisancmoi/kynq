@@ -13,7 +13,35 @@
 <body>
 
   <main>
-    <div id="ecran-carburant" class="ecran">
+    <div id="ecran-total" class="ecran">
+
+      <section id="total-projection">
+        <h1>Kynq</h1>
+
+        <div id="total-accueil" hidden>
+          <p class="accueil-phrase">Kynq additionne tes dépenses récurrentes et te montre ce qu'elles représentent sur
+            cinq ans.</p>
+          <p class="accueil-etapes">Ajoute tes pleins et tes abonnements pour voir ton total.</p>
+        </div>
+
+        <div id="total-resultats" hidden>
+          <p>Tes dépenses récurrentes</p>
+          <p id="total-mensuel">—</p>
+          <p class="equiv" id="total-annuel"></p>
+
+          <p class="bloc-projection">Sur les 5 prochaines années</p>
+          <p id="total-5ans">—</p>
+          <p id="total-phrase"></p>
+        </div>
+      </section>
+
+      <section id="total-detail-section">
+        <h2>Le détail</h2>
+        <ul id="total-liste"></ul>
+      </section>
+
+    </div>
+    <div id="ecran-carburant" class="ecran" hidden>
       <!-- ECRAN 1 : la projection -->
       <section id="ecran-projection">
         <h1>Kynq</h1>
@@ -195,7 +223,11 @@
     </div>
   </main>
   <nav id="onglets">
-    <button class="onglet actif" data-ecran="carburant">
+    <button class="onglet actif" data-ecran="total">
+      <span class="onglet-icone">📊</span>
+      <span class="onglet-texte">Total</span>
+    </button>
+    <button class="onglet" data-ecran="carburant">
       <span class="onglet-icone">⛽</span>
       <span class="onglet-texte">Carburant</span>
     </button>
