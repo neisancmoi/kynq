@@ -259,7 +259,6 @@ export function afficherHistorique(pleins) {
         } else if (p.suspect) {
             classePrix = "prix-aberrant";
         } else if (prixMoyen !== null) {
-        } else if (prixMoyen !== null && !p.suspect) {
             if (prixLitre > prixMoyen) {
                 classePrix = "prix-cher";
                 signePrix = "↑ ";

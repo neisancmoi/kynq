@@ -4,9 +4,14 @@
 // et demande à la vue d'afficher le résultat.
 // ============================================
 
-import { comparer } from "./core/projection.js";
+import { comparer, projeter } from "./core/projection.js";
 import { sauvegarder, lire } from "./core/storage.js";
 import { initNavigation } from "./core/navigation.js";
+import { totalMensuel } from "./modules/abonnements/calculs.js";
+import {
+    afficherResultats as afficherAboResultats,
+    afficherListe as afficherAboListe
+} from "./modules/abonnements/vue.js";
 import {
     coutParKmTheorique,
     kmParAn,
@@ -31,6 +36,7 @@ import {
 
 let config = lire("config", { objectifConso: 5.6, inflation: 0 });
 let pleins = lire("carburant");
+let abonnements = lire("abonnements");
 
 if (config.inflation === undefined) {
     config.inflation = 0;
@@ -71,6 +77,16 @@ const boutonExport = document.getElementById("btn-export");
 const champImport = document.getElementById("fichier-import");
 const elemRappelExport = document.getElementById("rappel-export");
 const listePleins = document.getElementById("liste-pleins");
+const aboNom = document.getElementById("abo-nom");
+const aboMontant = document.getElementById("abo-montant");
+const aboPeriodicite = document.getElementById("abo-periodicite");
+const aboBouton = document.getElementById("abo-btn-enregistrer");
+const aboBoutonAnnuler = document.getElementById("abo-btn-annuler");
+const aboTitreSaisie = document.getElementById("abo-titre-saisie");
+const aboListe = document.getElementById("abo-liste");
+
+// Id de l'abonnement en cours de modification
+let aboIdEnEdition = null;
 
 const modale = document.getElementById("modale");
 const modaleTitre = document.getElementById("modale-titre");
@@ -294,7 +310,6 @@ function enregistrerPlein(km, litres, montant, dateSaisie) {
 
     sauvegarder("carburant", pleins);
     quitterEdition();
-    initNavigation();
     afficher();
 }
 
@@ -463,6 +478,115 @@ function afficherRappelExport() {
     }
 }
 
+// ---------- Abonnements ----------
+
+function aboQuitterEdition() {
+    aboIdEnEdition = null;
+    aboNom.value = "";
+    aboMontant.value = "";
+    aboPeriodicite.value = "mensuel";
+    aboBouton.textContent = "Ajouter";
+    aboBoutonAnnuler.hidden = true;
+    aboTitreSaisie.textContent = "Nouvel abonnement";
+}
+
+function aboPasserEnEdition(id) {
+    const a = abonnements.find(function (x) { return x.id === id; });
+    if (!a) { return; }
+
+    aboIdEnEdition = id;
+    aboNom.value = a.nom;
+    aboMontant.value = a.montant;
+    aboPeriodicite.value = a.periodicite;
+    aboBouton.textContent = "Mettre à jour";
+    aboBoutonAnnuler.hidden = false;
+    aboTitreSaisie.textContent = "Modifier l'abonnement";
+    aboNom.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+aboBoutonAnnuler.addEventListener("click", aboQuitterEdition);
+
+aboBouton.addEventListener("click", function () {
+    const nom = aboNom.value.trim();
+    const montant = Number(aboMontant.value);
+
+    if (nom === "") {
+        alerte("Nom manquant", "Donne un nom à cet abonnement.");
+        return;
+    }
+
+    if (montant <= 0) {
+        alerte("Montant invalide", "Saisis un montant supérieur à zéro.");
+        return;
+    }
+
+    if (montant > 10000) {
+        alerte("Montant inhabituel", "Vérifie le montant, il semble très élevé.");
+        return;
+    }
+
+    if (aboIdEnEdition !== null) {
+        const a = abonnements.find(function (x) { return x.id === aboIdEnEdition; });
+        a.nom = nom;
+        a.montant = montant;
+        a.periodicite = aboPeriodicite.value;
+    } else {
+        abonnements.push({
+            id: Date.now(),
+            nom: nom,
+            montant: montant,
+            periodicite: aboPeriodicite.value
+        });
+    }
+
+    sauvegarder("abonnements", abonnements);
+    aboQuitterEdition();
+    afficherAbonnements();
+});
+
+aboListe.addEventListener("click", function (event) {
+    const id = Number(event.target.dataset.id);
+
+    if (event.target.classList.contains("abo-btn-modif")) {
+        aboPasserEnEdition(id);
+        return;
+    }
+
+    if (event.target.classList.contains("abo-btn-suppr")) {
+        const a = abonnements.find(function (x) { return x.id === id; });
+        if (!a) { return; }
+
+        demander("Supprimer cet abonnement ?", a.nom + ", " + fr(a.montant, 2) + " €", "Supprimer", function () {
+            abonnements = abonnements.filter(function (x) { return x.id !== id; });
+            sauvegarder("abonnements", abonnements);
+            if (aboIdEnEdition === id) { aboQuitterEdition(); }
+            afficherAbonnements();
+        }, true);
+    }
+});
+
+function afficherAbonnements() {
+    // L'unité est le mois, donc 12 unités par an. Le moteur ne change pas.
+    function projeterMensuel(coutParMois) {
+        return projeter(coutParMois, 12, 5, config.inflation);
+    }
+
+    afficherAboListe(abonnements, projeterMensuel);
+
+    if (abonnements.length === 0) {
+        afficherAboResultats(null);
+        return;
+    }
+
+    const mensuel = totalMensuel(abonnements);
+
+    afficherAboResultats({
+        mensuel: mensuel,
+        projection: projeterMensuel(mensuel),
+        nombre: abonnements.length,
+        inflation: config.inflation
+    });
+}
 
 // ---------- Calcule tout et demande l'affichage ----------
 
@@ -541,7 +665,6 @@ function afficher() {
         kmTotal: pleins[pleins.length - 1].km - pleins[0].km,
         variation: variation,
         anomalies: nombreAnomalies(pleins),
-        anomalies: nombreAnomalies(pleins),
         objectifAtteint: objectifAtteint,
         inflation: config.inflation,
         potentiel: potentiel
@@ -550,5 +673,6 @@ function afficher() {
 
 
 // ---------- Au démarrage ----------
-
+initNavigation();
 afficher();
+afficherAbonnements();

@@ -431,7 +431,8 @@ button:active {
 }
 
 /* ---------- Réglages ---------- */
-#ecran-config p {
+#reglages-carburant p,
+#reglages-donnees p {
   font-size: 13px;
   color: var(--texte-secondaire);
   margin: -8px 0 16px;
@@ -612,4 +613,132 @@ body {
 
 .ecran[hidden] {
   display: none;
+}
+
+.titre-module {
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  margin: 0 0 16px;
+}
+
+.sous-titre {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--texte-secondaire) !important;
+  margin: 24px 0 12px !important;
+  padding-top: 20px;
+  border-top: 1px solid var(--bordure);
+}
+
+/* ---------- Abonnements ---------- */
+#abo-projection {
+  text-align: center;
+}
+
+#abo-resultats p {
+  margin: 0;
+}
+
+#abo-resultats p:not([id]) {
+  color: var(--texte-secondaire);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-top: 22px;
+  margin-bottom: 6px;
+}
+
+#abo-mensuel {
+  font-size: 34px;
+  font-weight: 700;
+}
+
+#abo-projection-5ans {
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+#abo-phrase {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--texte-secondaire);
+  margin-top: 10px !important;
+}
+
+select {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+  font-size: 17px;
+  background: var(--fond);
+  color: var(--texte);
+  border: 1px solid var(--bordure);
+  border-radius: 10px;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#abo-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#abo-liste li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas:
+    "nom cout actions"
+    "detail detail actions";
+  align-items: start;
+  gap: 2px 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--bordure);
+}
+
+#abo-liste li:last-child {
+  border-bottom: none;
+}
+
+.abo-nom {
+  grid-area: nom;
+  font-size: 15px;
+  color: var(--texte);
+  font-weight: 600;
+}
+
+.abo-cout {
+  grid-area: cout;
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 600;
+  text-align: right;
+}
+
+.abo-detail {
+  grid-area: detail;
+  font-size: 13px;
+  color: var(--texte-secondaire);
+}
+
+.abo-actions {
+  grid-area: actions;
+  display: flex;
+  gap: 6px;
+  align-self: center;
+}
+
+#abo-vide {
+  font-size: 14px;
+  color: var(--texte-secondaire);
+  margin: 0;
 }
