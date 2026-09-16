@@ -610,7 +610,7 @@ function afficherVueTotale() {
     afficherTotal([
         { nom: "Carburant", mensuel: mensuelCarburant() },
         { nom: "Abonnements", mensuel: totalMensuel(abonnements) }
-    ], config.inflation);
+    ], config.inflation, nombreAnomalies(pleins));
 }
 // ---------- Calcule tout et demande l'affichage ----------
 

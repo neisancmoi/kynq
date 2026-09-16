@@ -833,3 +833,11 @@ select:focus {
   background: var(--accent);
   border-radius: 2px;
 }
+
+#total-note-anomalies {
+  font-size: 12px;
+  color: var(--rouge);
+  line-height: 1.4;
+  margin-top: 10px !important;
+  opacity: 0.9;
+}

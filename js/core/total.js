@@ -25,11 +25,12 @@ const elemMensuel = document.getElementById("total-mensuel");
 const elemAnnuel = document.getElementById("total-annuel");
 const elem5ans = document.getElementById("total-5ans");
 const elemPhrase = document.getElementById("total-phrase");
+const elemNoteAnomalies = document.getElementById("total-note-anomalies");
 const liste = document.getElementById("total-liste");
 
 
 // domaines : [{ nom, mensuel }, ...]
-export function afficherTotal(domaines, inflation) {
+export function afficherTotal(domaines, inflation, anomalies) {
     // On ne garde que les domaines qui ont des données
     const actifs = domaines.filter(function (d) {
         return d.mensuel > 0;
@@ -62,7 +63,16 @@ export function afficherTotal(domaines, inflation) {
     } else {
         elemPhrase.textContent = "C'est ce que tes dépenses récurrentes représentent sur cinq ans, aux tarifs actuels.";
     }
-
+    if (anomalies > 0) {
+        elemNoteAnomalies.hidden = false;
+        if (anomalies === 1) {
+            elemNoteAnomalies.textContent = "Un plein aux données douteuses est écarté de ce calcul.";
+        } else {
+            elemNoteAnomalies.textContent = anomalies + " pleins aux données douteuses sont écartés de ce calcul.";
+        }
+    } else {
+        elemNoteAnomalies.hidden = true;
+    }
     afficherDetail(actifs, mensuel, inflation);
 }
 
