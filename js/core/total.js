@@ -1,6 +1,6 @@
 // ============================================
 // Vue cumulée de tous les domaines.
-// Reçoit une liste de { nom, mensuel } et affiche le total.
+// Reçoit une liste de { nom, mensuel, inflation } et affiche le total.
 // Elle ne sait pas d'où viennent les chiffres.
 // ============================================
 
@@ -29,9 +29,8 @@ const elemNoteAnomalies = document.getElementById("total-note-anomalies");
 const liste = document.getElementById("total-liste");
 
 
-// domaines : [{ nom, mensuel }, ...]
-export function afficherTotal(domaines, inflation, anomalies) {
-    // On ne garde que les domaines qui ont des données
+// domaines : [{ nom, mensuel, inflation }, ...]
+export function afficherTotal(domaines, anomalies) {
     const actifs = domaines.filter(function (d) {
         return d.mensuel > 0;
     });
@@ -46,23 +45,25 @@ export function afficherTotal(domaines, inflation, anomalies) {
     zoneAccueil.hidden = true;
     zoneResultats.hidden = false;
 
+    // Chaque domaine a sa propre inflation, on projette séparément puis on additionne
     let mensuel = 0;
+    let surCinqAns = 0;
     for (let i = 0; i < actifs.length; i++) {
         mensuel = mensuel + actifs[i].mensuel;
+        surCinqAns = surCinqAns + projeter(actifs[i].mensuel, 12, 5, actifs[i].inflation);
     }
-
-    const surCinqAns = projeter(mensuel, 12, 5, inflation);
 
     elemMensuel.textContent = nb(mensuel, 2) + " €";
     elemAnnuel.textContent = ent(mensuel * 12) + " € par an";
     elem5ans.textContent = ent(surCinqAns) + " €";
 
-    if (inflation > 0) {
-        elemPhrase.textContent = "C'est ce que tes dépenses récurrentes représentent sur cinq ans, avec une hausse de " +
-            nb(inflation, 1) + " % par an.";
+    const avecHausse = actifs.some(function (d) { return d.inflation > 0; });
+    if (avecHausse) {
+        elemPhrase.textContent = "C'est ce que tes dépenses récurrentes représentent sur cinq ans, hausses prévues comprises.";
     } else {
         elemPhrase.textContent = "C'est ce que tes dépenses récurrentes représentent sur cinq ans, aux tarifs actuels.";
     }
+
     if (anomalies > 0) {
         elemNoteAnomalies.hidden = false;
         if (anomalies === 1) {
@@ -73,11 +74,12 @@ export function afficherTotal(domaines, inflation, anomalies) {
     } else {
         elemNoteAnomalies.hidden = true;
     }
-    afficherDetail(actifs, mensuel, inflation);
+
+    afficherDetail(actifs, mensuel);
 }
 
 
-function afficherDetail(domaines, total, inflation) {
+function afficherDetail(domaines, total) {
     liste.innerHTML = "";
 
     // Du plus gros poste au plus petit
@@ -89,7 +91,7 @@ function afficherDetail(domaines, total, inflation) {
     for (let i = 0; i < tries.length; i++) {
         const d = tries[i];
         const part = (d.mensuel / total) * 100;
-        const surCinqAns = projeter(d.mensuel, 12, 5, inflation);
+        const surCinqAns = projeter(d.mensuel, 12, 5, d.inflation);
 
         const ligne = document.createElement("li");
         ligne.innerHTML =

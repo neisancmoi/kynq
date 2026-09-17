@@ -39,8 +39,12 @@ let config = lire("config", { objectifConso: 5.6, inflation: 0 });
 let pleins = lire("carburant");
 let abonnements = lire("abonnements");
 
-if (config.inflation === undefined) {
-    config.inflation = 0;
+// Migration : l'inflation était partagée, elle devient propre à chaque module
+if (config.inflationCarburant === undefined) {
+    config.inflationCarburant = config.inflation !== undefined ? config.inflation : 0;
+}
+if (config.inflationAbonnements === undefined) {
+    config.inflationAbonnements = 0;
 }
 
 // Rattrapage des anciennes données
@@ -85,6 +89,8 @@ const aboBouton = document.getElementById("abo-btn-enregistrer");
 const aboBoutonAnnuler = document.getElementById("abo-btn-annuler");
 const aboTitreSaisie = document.getElementById("abo-titre-saisie");
 const aboListe = document.getElementById("abo-liste");
+const aboChampInflation = document.getElementById("abo-inflation");
+const aboBoutonInflation = document.getElementById("abo-btn-inflation");
 
 // Id de l'abonnement en cours de modification
 let aboIdEnEdition = null;
@@ -120,7 +126,8 @@ function fr(valeur, decimales = 2) {
 
 champDate.value = dateAujourdhui();
 champObjectif.value = config.objectifConso;
-champInflation.value = config.inflation;
+champInflation.value = config.inflationCarburant;
+aboChampInflation.value = config.inflationAbonnements;
 
 
 // ---------- Modale générique ----------
@@ -338,9 +345,21 @@ boutonInflation.addEventListener("click", function () {
         return;
     }
 
-    config.inflation = valeur;
+    config.inflationCarburant = valeur;
     sauvegarder("config", config);
     afficher();
+});
+aboBoutonInflation.addEventListener("click", function () {
+    const valeur = Number(aboChampInflation.value);
+
+    if (valeur < 0 || valeur > 20) {
+        alerte("Valeur invalide", "Saisis une hausse entre 0 et 20 %.");
+        return;
+    }
+
+    config.inflationAbonnements = valeur;
+    sauvegarder("config", config);
+    afficherAbonnements();
 });
 
 
@@ -569,7 +588,7 @@ aboListe.addEventListener("click", function (event) {
 function afficherAbonnements() {
     // L'unité est le mois, donc 12 unités par an. Le moteur ne change pas.
     function projeterMensuel(coutParMois) {
-        return projeter(coutParMois, 12, 5, config.inflation);
+        return projeter(coutParMois, 12, 5, config.inflationAbonnements);
     }
 
     afficherAboListe(abonnements, projeterMensuel);
@@ -586,7 +605,7 @@ function afficherAbonnements() {
         mensuel: mensuel,
         projection: projeterMensuel(mensuel),
         nombre: abonnements.length,
-        inflation: config.inflation
+        inflation: config.inflationAbonnements
     });
 }
 // ---------- Vue totale ----------
@@ -608,9 +627,9 @@ function mensuelCarburant() {
 
 function afficherVueTotale() {
     afficherTotal([
-        { nom: "Carburant", mensuel: mensuelCarburant() },
-        { nom: "Abonnements", mensuel: totalMensuel(abonnements) }
-    ], config.inflation, nombreAnomalies(pleins));
+        { nom: "Carburant", mensuel: mensuelCarburant(), inflation: config.inflationCarburant },
+        { nom: "Abonnements", mensuel: totalMensuel(abonnements), inflation: config.inflationAbonnements }
+    ], nombreAnomalies(pleins));
 }
 // ---------- Calcule tout et demande l'affichage ----------
 
@@ -646,7 +665,7 @@ function afficher() {
     // sinon le rapport entre les projections ne reflète plus l'écart de conso.
     const coutKmActuel = coutParKmTheorique(segment.conso, prixMoyen);
     const coutKmObjectif = coutParKmTheorique(config.objectifConso, prixMoyen);
-    const resultat = comparer(coutKmActuel, coutKmObjectif, kmAn, 5, config.inflation);
+    const resultat = comparer(coutKmActuel, coutKmObjectif, kmAn, 5, config.inflationCarburant);
     // Si l'objectif est à moins de 0,05 L de la conso réelle, il est atteint.
     // Afficher "2 € d'écart sur 5 ans" ne dit rien à personne.
     const objectifAtteint = Math.abs(segment.conso - config.objectifConso) < 0.05;
@@ -665,8 +684,7 @@ function afficher() {
         // meilleur que l'actuel ET plus exigeant que l'objectif déjà fixé.
         if (meilleure < segment.conso - 0.1 && meilleure < config.objectifConso - 0.05) {
             const coutKmMeilleur = coutParKmTheorique(meilleure, prixMoyen);
-            const compare = comparer(coutKmActuel, coutKmMeilleur, kmAn, 5, config.inflation);
-            potentiel = { conso: meilleure, ecart: compare.ecart };
+            const compare = comparer(coutKmActuel, coutKmMeilleur, kmAn, 5, config.inflationCarburant);
         }
     }
     // Variation par rapport au segment fiable précédent
@@ -691,7 +709,7 @@ function afficher() {
         variation: variation,
         anomalies: nombreAnomalies(pleins),
         objectifAtteint: objectifAtteint,
-        inflation: config.inflation,
+        inflation: config.inflationCarburant,
         potentiel: potentiel
     });
 }
