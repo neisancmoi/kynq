@@ -1,4 +1,4 @@
-const CACHE = "kynq-v8";
+const CACHE = "kynq-v9";
 
 const FICHIERS = [
   "./index.html",
@@ -6,8 +6,12 @@ const FICHIERS = [
   "./js/app.js",
   "./js/core/projection.js",
   "./js/core/storage.js",
+  "./js/core/navigation.js",
+  "./js/core/total.js",
   "./js/modules/carburant/calculs.js",
   "./js/modules/carburant/vue.js",
+  "./js/modules/abonnements/calculs.js",
+  "./js/modules/abonnements/vue.js",
   "./manifest.json",
   "./icone-192.png",
   "./icone-512.png"
