@@ -199,7 +199,7 @@ function passerEnEdition(id) {
     bouton.textContent = "Mettre à jour";
     titreSaisie.textContent = "Modifier le plein";
     boutonAnnuler.hidden = false;
-    champDate.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById("ecran-saisie").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function quitterEdition() {
@@ -521,7 +521,7 @@ function aboPasserEnEdition(id) {
     aboBouton.textContent = "Mettre à jour";
     aboBoutonAnnuler.hidden = false;
     aboTitreSaisie.textContent = "Modifier l'abonnement";
-    aboNom.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById("abo-saisie").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 aboBoutonAnnuler.addEventListener("click", aboQuitterEdition);

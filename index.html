@@ -41,6 +41,7 @@
         <section id="total-detail-section">
           <h2>Le détail</h2>
           <ul id="total-liste"></ul>
+          <p id="total-detail-vide">Le détail de tes dépenses apparaîtra ici.</p>
         </section>
 
       </div>
@@ -207,21 +208,21 @@
           <button id="btn-objectif">Enregistrer l'objectif</button>
 
           <p class="sous-titre">Hausse du carburant</p>
-          <label for="inflation">Hausse annuelle prévue (%)</label>
+          <label for="inflation">Hausse annuelle du carburant (%)</label>
           <input type="number" id="inflation" inputmode="decimal" step="0.5" min="0" max="20">
           <p id="conseil-inflation">Sur les vingt dernières années, le carburant a augmenté d'environ 2 à 3 % par an en
             moyenne selon les périodes, avec de fortes variations d'une année sur l'autre. Mets 0 pour projeter au prix
             actuel.</p>
-          <button id="btn-inflation">Enregistrer la hausse</button>
+          <button id="btn-inflation">Enregistrer la hausse carburant</button>
         </section>
 
         <section id="reglages-abonnements">
           <h2 class="titre-module">Abonnements</h2>
 
-          <label for="abo-inflation">Hausse annuelle prévue (%)</label>
+          <label for="abo-inflation">Hausse annuelle des abonnements (%)</label>
           <input type="number" id="abo-inflation" inputmode="decimal" step="0.5" min="0" max="20">
           <p>Les abonnements augmentent souvent de 2 à 5 % par an. Mets 0 pour projeter au tarif actuel.</p>
-          <button id="abo-btn-inflation">Enregistrer la hausse</button>
+          <button id="abo-btn-inflation">Enregistrer la hausse abonnements</button>
         </section>
 
         <section id="reglages-donnees">

@@ -27,6 +27,7 @@ const elem5ans = document.getElementById("total-5ans");
 const elemPhrase = document.getElementById("total-phrase");
 const elemNoteAnomalies = document.getElementById("total-note-anomalies");
 const liste = document.getElementById("total-liste");
+const listeVide = document.getElementById("total-detail-vide");
 
 
 // domaines : [{ nom, mensuel, inflation }, ...]
@@ -39,6 +40,7 @@ export function afficherTotal(domaines, anomalies) {
         zoneAccueil.hidden = false;
         zoneResultats.hidden = true;
         liste.innerHTML = "";
+        listeVide.hidden = false;
         return;
     }
 
@@ -81,6 +83,7 @@ export function afficherTotal(domaines, anomalies) {
 
 function afficherDetail(domaines, total) {
     liste.innerHTML = "";
+    listeVide.hidden = domaines.length > 0;
 
     // Du plus gros poste au plus petit
     const tries = domaines.slice();

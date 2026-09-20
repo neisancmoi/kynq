@@ -393,7 +393,7 @@ button:active {
   width: 44px;
   height: 44px;
   padding: 0;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1;
   background: transparent;
   color: var(--texte-secondaire);
@@ -837,6 +837,12 @@ select:focus {
   line-height: 1.5;
   color: var(--texte-secondaire);
   margin-top: 10px !important;
+}
+
+#total-detail-vide {
+  font-size: 14px;
+  color: var(--texte-secondaire);
+  margin: 0;
 }
 
 #total-liste {
