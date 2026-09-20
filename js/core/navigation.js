@@ -1,47 +1,49 @@
 // ============================================
 // Navigation entre les écrans.
-// Générique : ne sait rien des modules qu'elle affiche.
+// Les écrans sont côte à côte dans une piste horizontale
+// qu'on déplace avec transform.
 // ============================================
 
+const piste = document.getElementById("piste");
 const ecrans = document.querySelectorAll(".ecran");
 const onglets = document.querySelectorAll(".onglet");
 
-// Ordre des écrans, tel qu'il apparaît dans la barre du bas
 const ordre = [];
 for (let i = 0; i < onglets.length; i++) {
     ordre.push(onglets[i].dataset.ecran);
 }
 
-let ecranActuel = ordre[0];
+let indexActuel = 0;
+
+
+function positionner(index, anime) {
+    if (!anime) {
+        piste.classList.add("sans-transition");
+    } else {
+        piste.classList.remove("sans-transition");
+    }
+
+    const decalage = -(index * (100 / ordre.length));
+    piste.style.transform = "translateX(" + decalage + "%)";
+}
 
 
 export function allerVers(nom) {
-    ecranActuel = nom;
+    const index = ordre.indexOf(nom);
+    if (index === -1) { return; }
 
-    for (let i = 0; i < ecrans.length; i++) {
-        ecrans[i].hidden = ecrans[i].id !== "ecran-" + nom;
-    }
+    indexActuel = index;
+    positionner(index, true);
 
     for (let i = 0; i < onglets.length; i++) {
-        if (onglets[i].dataset.ecran === nom) {
+        if (i === index) {
             onglets[i].classList.add("actif");
         } else {
             onglets[i].classList.remove("actif");
         }
     }
 
-    window.scrollTo({ top: 0, behavior: "instant" });
-}
-
-
-function ecranVoisin(direction) {
-    const index = ordre.indexOf(ecranActuel);
-    const cible = index + direction;
-
-    if (cible < 0 || cible >= ordre.length) {
-        return null;
-    }
-    return ordre[cible];
+    ecrans[index].scrollTop = 0;
 }
 
 
@@ -52,6 +54,7 @@ export function initNavigation() {
         });
     }
 
+    positionner(0, false);
     initSwipe();
 }
 
@@ -59,33 +62,76 @@ export function initNavigation() {
 function initSwipe() {
     let departX = 0;
     let departY = 0;
-    let suit = false;
+    let dernierX = 0;
+    let actif = false;
+    let horizontal = null;   // null tant qu'on ne sait pas la direction
+    let largeur = window.innerWidth;
 
-    document.addEventListener("touchstart", function (event) {
+    window.addEventListener("resize", function () {
+        largeur = window.innerWidth;
+        positionner(indexActuel, false);
+    });
+
+    piste.addEventListener("touchstart", function (event) {
         if (event.touches.length !== 1) { return; }
         departX = event.touches[0].clientX;
         departY = event.touches[0].clientY;
-        suit = true;
+        dernierX = departX;
+        actif = true;
+        horizontal = null;
+        largeur = window.innerWidth;
     }, { passive: true });
 
-    document.addEventListener("touchend", function (event) {
-        if (!suit) { return; }
-        suit = false;
+    piste.addEventListener("touchmove", function (event) {
+        if (!actif) { return; }
 
-        const finX = event.changedTouches[0].clientX;
-        const finY = event.changedTouches[0].clientY;
-        const deltaX = finX - departX;
-        const deltaY = finY - departY;
+        const x = event.touches[0].clientX;
+        const y = event.touches[0].clientY;
+        const deltaX = x - departX;
+        const deltaY = y - departY;
 
-        // Un geste vertical est un scroll, pas un changement d'écran
-        if (Math.abs(deltaX) < 60) { return; }
-        if (Math.abs(deltaY) > Math.abs(deltaX) * 0.7) { return; }
-
-        const direction = deltaX < 0 ? 1 : -1;
-        const cible = ecranVoisin(direction);
-
-        if (cible !== null) {
-            allerVers(cible);
+        // On décide une seule fois si le geste est horizontal ou vertical
+        if (horizontal === null) {
+            if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) { return; }
+            horizontal = Math.abs(deltaX) > Math.abs(deltaY);
+            if (!horizontal) { actif = false; return; }
         }
+
+        dernierX = x;
+
+        // Résistance aux extrémités : le geste avance moins vite
+        let glissement = deltaX;
+        const auBord = (indexActuel === 0 && deltaX > 0) ||
+            (indexActuel === ordre.length - 1 && deltaX < 0);
+        if (auBord) {
+            glissement = deltaX * 0.3;
+        }
+
+        const base = -(indexActuel * largeur);
+        const position = base + glissement;
+        const pourcent = (position / (largeur * ordre.length)) * 100;
+
+        piste.classList.add("sans-transition");
+        piste.style.transform = "translateX(" + pourcent + "%)";
+    }, { passive: true });
+
+    piste.addEventListener("touchend", function () {
+        if (!actif || horizontal !== true) {
+            actif = false;
+            return;
+        }
+        actif = false;
+
+        const deltaX = dernierX - departX;
+        const seuil = largeur * 0.25;
+
+        let cible = indexActuel;
+        if (deltaX < -seuil && indexActuel < ordre.length - 1) {
+            cible = indexActuel + 1;
+        } else if (deltaX > seuil && indexActuel > 0) {
+            cible = indexActuel - 1;
+        }
+
+        allerVers(ordre[cible]);
     }, { passive: true });
 }
