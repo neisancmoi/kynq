@@ -107,7 +107,23 @@
             <p id="cout-km">—</p>
           </div>
         </section>
+        <section id="ecran-trajet">
+          <h2>Coût d'un trajet</h2>
+          <p id="trajet-indispo">Disponible après ton deuxième plein complet.</p>
 
+          <div id="trajet-outil" hidden>
+            <label for="trajet-distance">Distance (km)</label>
+            <input type="text" id="trajet-distance" inputmode="decimal" placeholder="42,5">
+
+            <label class="case-a-cocher">
+              <input type="checkbox" id="trajet-ar">
+              <span>Aller-retour</span>
+            </label>
+
+            <p id="trajet-resultat"></p>
+            <p id="trajet-base"></p>
+          </div>
+        </section>
         <section id="ecran-saisie">
           <h2 id="titre-saisie">Nouveau plein</h2>
 

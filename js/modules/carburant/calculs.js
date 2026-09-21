@@ -244,3 +244,35 @@ export function pleinPeutEtreOublie(pleins) {
 
   return { jours: Math.round(jours), habituel: Math.round(habituel) };
 }
+
+// Prix moyen hors pleins douteux.
+// Si les litres d'un plein sont suspects, son prix au litre l'est aussi.
+export function prixMoyenFiable(pleins) {
+  const tous = tousLesSegments(pleins);
+  const mediane = consoMediane(tous);
+
+  // Le plein qui clôt un segment suspect est celui qu'on écarte
+  const suspects = tous.filter(function (s) {
+    return estSuspect(s.conso, mediane);
+  });
+
+  let totalMontant = 0;
+  let totalLitres = 0;
+
+  for (let i = 0; i < pleins.length; i++) {
+    const p = pleins[i];
+    const estDouteux = suspects.some(function (s) {
+      return s.km === p.km && s.date === p.date;
+    });
+    if (estDouteux) { continue; }
+
+    totalMontant = totalMontant + p.montant;
+    totalLitres = totalLitres + p.litres;
+  }
+
+  // Si tout est écarté, on retombe sur la moyenne brute plutôt que rien
+  if (totalLitres === 0) {
+    return prixMoyenLitre(pleins);
+  }
+  return totalMontant / totalLitres;
+}

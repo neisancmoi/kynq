@@ -23,7 +23,8 @@ import {
     totalDepense,
     totalLitres,
     prixPlausible,
-    pleinPeutEtreOublie
+    pleinPeutEtreOublie,
+    prixMoyenFiable
 } from "./modules/carburant/calculs.js";
 import {
     afficherMessage,
@@ -613,6 +614,52 @@ function afficherAbonnements() {
         inflation: config.inflationAbonnements
     });
 }
+// ---------- Coût d'un trajet ----------
+
+const trajetIndispo = document.getElementById("trajet-indispo");
+const trajetOutil = document.getElementById("trajet-outil");
+const trajetDistance = document.getElementById("trajet-distance");
+const trajetAr = document.getElementById("trajet-ar");
+const trajetResultat = document.getElementById("trajet-resultat");
+const trajetBase = document.getElementById("trajet-base");
+
+// Calcul jetable : rien n'est enregistré, le résultat suit la saisie en direct.
+// Mêmes valeurs que la projection, sinon l'écran se contredit.
+function afficherTrajet() {
+    const segment = dernierSegment(pleins);
+
+    if (segment === null) {
+        trajetIndispo.hidden = false;
+        trajetOutil.hidden = true;
+        return;
+    }
+
+    trajetIndispo.hidden = true;
+    trajetOutil.hidden = false;
+
+    const conso = segment.conso;
+    const prix = prixMoyenFiable(pleins);
+    const base = "À " + fr(conso, 2) + " L/100 et " + fr(prix, 2) + " €/L.";
+
+    // Un Français tape 42,5 : on remplace la virgule avant de convertir
+    const distance = parseFloat(trajetDistance.value.replace(",", "."));
+
+    if (isNaN(distance) || distance <= 0) {
+        trajetResultat.textContent = "";
+        trajetBase.textContent = base;
+        return;
+    }
+
+    const km = trajetAr.checked ? distance * 2 : distance;
+    const litres = (km * conso) / 100;
+    const cout = litres * prix;
+
+    trajetResultat.textContent = fr(cout, 2) + " €";
+    trajetBase.textContent = "Soit " + fr(litres, 1) + " L sur " + fr(km, 0) + " km. " + base;
+}
+
+trajetDistance.addEventListener("input", afficherTrajet);
+trajetAr.addEventListener("change", afficherTrajet);
 // ---------- Rappel de plein oublié ----------
 
 function afficherRappelPlein() {
@@ -656,7 +703,7 @@ function mensuelCarburant() {
     const kmAn = kmParAn(pleins);
     if (kmAn === null) { return 0; }
 
-    const prixMoyen = prixMoyenLitre(pleins);
+    const prixMoyen = prixMoyenFiable(pleins);
     const coutKm = coutParKmTheorique(segment.conso, prixMoyen);
 
     // Coût annuel ramené au mois
@@ -673,6 +720,7 @@ function afficherVueTotale() {
 
 function afficher() {
     afficherRappelPlein();
+    afficherTrajet();
     afficherVueTotale();
     afficherHistorique(pleins);
     afficherGraphique(pleins, config.objectifConso);
@@ -699,7 +747,7 @@ function afficher() {
         return;
     }
 
-    const prixMoyen = prixMoyenLitre(pleins);
+    const prixMoyen = prixMoyenFiable(pleins);
     // Les deux branches doivent tourner sur le MÊME prix au litre,
     // sinon le rapport entre les projections ne reflète plus l'écart de conso.
     const coutKmActuel = coutParKmTheorique(segment.conso, prixMoyen);
