@@ -94,12 +94,14 @@ function remettreCurseurs() {
     curseurConso.max = c.conso + 1;
     curseurConso.value = c.conso;
 
-    curseurKm.min = c.kmAn * 0.5;
-    curseurKm.max = c.kmAn * 1.5;
+    // Large vers le haut : quelqu'un peut changer de boulot et tripler ses trajets
+    curseurKm.min = c.kmAn * 0.25;
+    curseurKm.max = Math.max(c.kmAn * 3, 40000);
     curseurKm.value = c.kmAn;
 
-    curseurPrix.min = Math.max(0.8, c.prix - 0.5);
-    curseurPrix.max = c.prix + 0.5;
+    // Large aussi : le carburant peut monter bien au-delà du prix actuel
+    curseurPrix.min = Math.max(0.8, c.prix - 0.8);
+    curseurPrix.max = Math.max(c.prix + 1.5, 3.5);
     curseurPrix.value = c.prix;
 }
 
