@@ -50,6 +50,41 @@
           <ul id="total-liste"></ul>
           <p id="total-detail-vide">Le détail de tes dépenses apparaîtra ici.</p>
         </section>
+        <section id="simu-section">
+          <h2>Et si tu changeais quelque chose</h2>
+          <p id="simu-vide">Ajoute des pleins ou des abonnements pour simuler un changement.</p>
+
+          <div id="simu" hidden>
+            <div id="simu-carburant">
+              <p class="simu-label">Consommation <span id="simu-conso-val"></span></p>
+              <input type="range" id="simu-conso" step="any">
+
+              <p class="simu-label">Kilomètres par an <span id="simu-km-val"></span></p>
+              <input type="range" id="simu-km" step="any">
+
+              <p class="simu-label">Prix du litre <span id="simu-prix-val"></span></p>
+              <input type="range" id="simu-prix" step="any">
+            </div>
+
+            <div id="simu-abonnements">
+              <p class="simu-label">Abonnements gardés</p>
+              <ul id="simu-abos"></ul>
+            </div>
+
+            <p id="simu-resultat"></p>
+            <p id="simu-detail"></p>
+            <button id="simu-reset" class="btn-secondaire">Revenir à ta situation réelle</button>
+          </div>
+        </section>
+
+        <section id="but-section">
+          <h2>Ce que tu veux financer</h2>
+          <label for="but-nom">Ton but</label>
+          <input type="text" id="but-nom" placeholder="Un voyage, un vélo...">
+          <label for="but-prix">Son prix (€)</label>
+          <input type="text" id="but-prix" inputmode="decimal" placeholder="800">
+          <p id="but-resultat"></p>
+        </section>
 
       </div>
 

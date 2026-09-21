@@ -8,7 +8,8 @@ import { comparer, projeter } from "./core/projection.js";
 import { sauvegarder, lire } from "./core/storage.js";
 import { initNavigation, allerVers } from "./core/navigation.js";
 import { afficherTotal } from "./core/total.js";
-import { totalMensuel } from "./modules/abonnements/calculs.js";
+import { initSimulateur, majSimulateur } from "./core/simulateur.js";
+import { totalMensuel, coutMensuel } from "./modules/abonnements/calculs.js";
 import {
     afficherResultats as afficherAboResultats,
     afficherListe as afficherAboListe
@@ -715,6 +716,28 @@ function afficherVueTotale() {
         { nom: "Carburant", mensuel: mensuelCarburant(), inflation: config.inflationCarburant },
         { nom: "Abonnements", mensuel: totalMensuel(abonnements), inflation: config.inflationAbonnements }
     ], nombreAnomalies(pleins));
+
+    // Le simulateur ne reçoit que les chiffres réels, il ne bouge que ceux-là
+    let refCarburant = null;
+    const segment = dernierSegment(pleins);
+    const kmAn = kmParAn(pleins);
+
+    if (segment !== null && kmAn !== null) {
+        refCarburant = {
+            conso: segment.conso,
+            prix: prixMoyenFiable(pleins),
+            kmAn: kmAn,
+            inflation: config.inflationCarburant
+        };
+    }
+
+    majSimulateur({
+        carburant: refCarburant,
+        abonnements: abonnements.map(function (a) {
+            return { id: a.id, nom: a.nom, mensuel: coutMensuel(a) };
+        }),
+        inflationAbonnements: config.inflationAbonnements
+    });
 }
 // ---------- Calcule tout et demande l'affichage ----------
 
@@ -804,5 +827,6 @@ function afficher() {
 
 // ---------- Au démarrage ----------
 initNavigation();
+initSimulateur();
 afficher();
 afficherAbonnements();
