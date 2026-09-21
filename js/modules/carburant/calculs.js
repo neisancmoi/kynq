@@ -198,3 +198,49 @@ export function totalLitres(pleins) {
   }
   return total;
 }
+
+// ---------- Détection d'un plein oublié ----------
+
+// Intervalle habituel entre deux pleins, en jours.
+// Médiane plutôt que moyenne : un mois de vacances ne fausse pas tout.
+export function intervalleHabituel(pleins) {
+  if (pleins.length < 5) {
+    return null;
+  }
+
+  const intervalles = [];
+  for (let i = 1; i < pleins.length; i++) {
+    intervalles.push((pleins[i].date - pleins[i - 1].date) / 86400000);
+  }
+  intervalles.sort(function (a, b) { return a - b; });
+
+  const milieu = Math.floor(intervalles.length / 2);
+  let mediane = intervalles[milieu];
+  if (intervalles.length % 2 === 0) {
+    mediane = (intervalles[milieu - 1] + intervalles[milieu]) / 2;
+  }
+
+  // Deux pleins le même jour donneraient une médiane nulle, inutilisable
+  if (mediane < 1) {
+    return null;
+  }
+  return mediane;
+}
+
+// Renvoie { jours, habituel } si le dernier plein est anormalement ancien, sinon null
+export function pleinPeutEtreOublie(pleins) {
+  const habituel = intervalleHabituel(pleins);
+  if (habituel === null) {
+    return null;
+  }
+
+  const dernier = pleins[pleins.length - 1];
+  const jours = (Date.now() - dernier.date) / 86400000;
+
+  // Seuil large volontairement : une alerte trop fréquente finit ignorée
+  if (jours <= habituel * 2) {
+    return null;
+  }
+
+  return { jours: Math.round(jours), habituel: Math.round(habituel) };
+}

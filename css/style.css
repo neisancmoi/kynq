@@ -905,3 +905,36 @@ select:focus {
   margin-top: 10px !important;
   opacity: 0.9;
 }
+
+/* ---------- Rappel de plein ---------- */
+.rappel-plein {
+  max-width: 520px;
+  margin: 0 auto 16px;
+  padding: 16px;
+  background: rgba(79, 140, 255, 0.1);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.rappel-plein[hidden] {
+  display: none;
+}
+
+.rappel-plein p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--texte);
+  margin: 0 0 12px;
+}
+
+.rappel-plein-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rappel-plein-actions button {
+  flex: 1;
+  margin: 0;
+  padding: 12px;
+  font-size: 14px;
+}

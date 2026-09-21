@@ -6,7 +6,7 @@
 
 import { comparer, projeter } from "./core/projection.js";
 import { sauvegarder, lire } from "./core/storage.js";
-import { initNavigation } from "./core/navigation.js";
+import { initNavigation, allerVers } from "./core/navigation.js";
 import { afficherTotal } from "./core/total.js";
 import { totalMensuel } from "./modules/abonnements/calculs.js";
 import {
@@ -22,7 +22,8 @@ import {
     nombreAnomalies,
     totalDepense,
     totalLitres,
-    prixPlausible
+    prixPlausible,
+    pleinPeutEtreOublie
 } from "./modules/carburant/calculs.js";
 import {
     afficherMessage,
@@ -89,6 +90,10 @@ const aboBouton = document.getElementById("abo-btn-enregistrer");
 const aboBoutonAnnuler = document.getElementById("abo-btn-annuler");
 const aboTitreSaisie = document.getElementById("abo-titre-saisie");
 const aboListe = document.getElementById("abo-liste");
+const rappelPlein = document.getElementById("rappel-plein");
+const rappelPleinTexte = document.getElementById("rappel-plein-texte");
+const rappelPleinAjouter = document.getElementById("rappel-plein-ajouter");
+const rappelPleinMasquer = document.getElementById("rappel-plein-masquer");
 const aboChampInflation = document.getElementById("abo-inflation");
 const aboBoutonInflation = document.getElementById("abo-btn-inflation");
 
@@ -608,6 +613,39 @@ function afficherAbonnements() {
         inflation: config.inflationAbonnements
     });
 }
+// ---------- Rappel de plein oublié ----------
+
+function afficherRappelPlein() {
+    const oubli = pleinPeutEtreOublie(pleins);
+
+    // Masqué par l'utilisateur tant qu'aucun nouveau plein n'a été saisi
+    const dernier = pleins.length > 0 ? pleins[pleins.length - 1].date : null;
+    const masque = config.rappelMasque !== undefined && config.rappelMasque === dernier;
+
+    if (oubli === null || masque) {
+        rappelPlein.hidden = true;
+        return;
+    }
+
+    rappelPleinTexte.textContent =
+        "Ton dernier plein date de " + oubli.jours + " jours. D'habitude tu en fais un tous les " +
+        oubli.habituel + " jours, tu en as peut-être oublié un.";
+    rappelPlein.hidden = false;
+}
+
+rappelPleinAjouter.addEventListener("click", function () {
+    allerVers("carburant");
+    // On attend la fin de l'animation de la piste avant de descendre au formulaire
+    setTimeout(function () {
+        document.getElementById("ecran-saisie").scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 320);
+});
+
+rappelPleinMasquer.addEventListener("click", function () {
+    config.rappelMasque = pleins[pleins.length - 1].date;
+    sauvegarder("config", config);
+    rappelPlein.hidden = true;
+});
 // ---------- Vue totale ----------
 
 // Chaque module fournit son coût mensuel. Le cumul ne calcule rien lui-même.
@@ -634,6 +672,7 @@ function afficherVueTotale() {
 // ---------- Calcule tout et demande l'affichage ----------
 
 function afficher() {
+    afficherRappelPlein();
     afficherVueTotale();
     afficherHistorique(pleins);
     afficherGraphique(pleins, config.objectifConso);
