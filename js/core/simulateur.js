@@ -66,8 +66,9 @@ export function majSimulateur(donnees) {
 
     const aCarburant = donnees.carburant !== null;
     const aAbos = donnees.abonnements.length > 0;
+    const aFrais = donnees.fraisMensuel > 0;
 
-    if (!aCarburant && !aAbos) {
+    if (!aCarburant && !aAbos && !aFrais) {
         zone.hidden = true;
         zoneVide.hidden = false;
         calculerBut(0);
@@ -146,6 +147,16 @@ function calculer() {
     let simule5 = 0;
     let actuelMois = 0;
     let simuleMois = 0;
+    // Les frais de la voiture comptent dans le total mais ne se résilient pas :
+    // ils sont identiques des deux côtés de la simulation.
+    const fraisMois = reference.fraisMensuel || 0;
+    if (fraisMois > 0) {
+        const fraisSur5 = projeter(fraisMois, 12, 5, 0);
+        actuelMois = actuelMois + fraisMois;
+        simuleMois = simuleMois + fraisMois;
+        actuel5 = actuel5 + fraisSur5;
+        simule5 = simule5 + fraisSur5;
+    }
 
     if (reference.carburant !== null) {
         const c = reference.carburant;

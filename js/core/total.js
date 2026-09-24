@@ -27,6 +27,10 @@ const elem5ans = document.getElementById("total-5ans");
 const elemPhrase = document.getElementById("total-phrase");
 const elemNoteAnomalies = document.getElementById("total-note-anomalies");
 const liste = document.getElementById("total-liste");
+const encart = document.getElementById("total-encart");
+const encartTitre = document.getElementById("total-encart-titre");
+const encartValeur = document.getElementById("total-encart-valeur");
+const encartDetail = document.getElementById("total-encart-detail");
 const listeVide = document.getElementById("total-detail-vide");
 
 
@@ -106,4 +110,24 @@ function afficherDetail(domaines, total) {
 
         liste.appendChild(ligne);
     }
+}
+// Le coût réel de la voiture : carburant plus frais fixes
+export function afficherEncartVoiture(mensuel, coutParKm, aDesFrais) {
+    if (mensuel <= 0) {
+        encart.hidden = true;
+        return;
+    }
+
+    encart.hidden = false;
+    encartTitre.textContent = "Ta voiture te coûte";
+    encartValeur.textContent = nb(mensuel, 2) + " € par mois";
+
+    let detail = ent(mensuel * 12) + " € par an.";
+    if (coutParKm !== null) {
+        detail = detail + " Soit " + nb(coutParKm, 3) + " € du kilomètre, tout compris.";
+    }
+    if (!aDesFrais) {
+        detail = detail + " Ajoute ton assurance et ton entretien pour un chiffre complet.";
+    }
+    encartDetail.textContent = detail;
 }

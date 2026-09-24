@@ -7,9 +7,10 @@
 import { comparer, projeter } from "./core/projection.js";
 import { sauvegarder, lire } from "./core/storage.js";
 import { initNavigation, allerVers } from "./core/navigation.js";
-import { afficherTotal } from "./core/total.js";
 import { initSimulateur, majSimulateur } from "./core/simulateur.js";
+import { afficherTotal, afficherEncartVoiture } from "./core/total.js";
 import { totalMensuel, coutMensuel } from "./modules/abonnements/calculs.js";
+import { afficherFrais } from "./modules/frais/vue.js";
 import {
     afficherResultats as afficherAboResultats,
     afficherListe as afficherAboListe
@@ -41,6 +42,7 @@ import {
 let config = lire("config", { objectifConso: 5.6, inflation: 0 });
 let pleins = lire("carburant");
 let abonnements = lire("abonnements");
+let frais = lire("frais");
 
 // Migration : l'inflation était partagée, elle devient propre à chaque module
 if (config.inflationCarburant === undefined) {
@@ -92,6 +94,16 @@ const aboBouton = document.getElementById("abo-btn-enregistrer");
 const aboBoutonAnnuler = document.getElementById("abo-btn-annuler");
 const aboTitreSaisie = document.getElementById("abo-titre-saisie");
 const aboListe = document.getElementById("abo-liste");
+const fraisNom = document.getElementById("frais-nom");
+const fraisMontant = document.getElementById("frais-montant");
+const fraisPeriodicite = document.getElementById("frais-periodicite");
+const fraisBouton = document.getElementById("frais-btn-enregistrer");
+const fraisBoutonAnnuler = document.getElementById("frais-btn-annuler");
+const fraisTitreSaisie = document.getElementById("frais-titre-saisie");
+const fraisListe = document.getElementById("frais-liste");
+
+// Id du frais en cours de modification
+let fraisIdEnEdition = null;
 const rappelPlein = document.getElementById("rappel-plein");
 const rappelPleinTexte = document.getElementById("rappel-plein-texte");
 const rappelPleinAjouter = document.getElementById("rappel-plein-ajouter");
@@ -407,6 +419,9 @@ boutonExport.addEventListener("click", function () {
         version: 1,
         exporteLe: new Date().toISOString(),
         carburant: pleins,
+        abonnements: abonnements,
+        frais: frais,
+        but: lire("but", { nom: "", prix: "" }),
         config: config
     };
 
@@ -452,6 +467,17 @@ champImport.addEventListener("change", function (event) {
                     pleins = donnees.carburant;
                     sauvegarder("carburant", pleins);
 
+                    // Compatibilité avec les anciens exports qui ne contenaient que le carburant
+                    abonnements = donnees.abonnements || [];
+                    sauvegarder("abonnements", abonnements);
+
+                    frais = donnees.frais || [];
+                    sauvegarder("frais", frais);
+
+                    if (donnees.but) {
+                        sauvegarder("but", donnees.but);
+                    }
+
                     if (donnees.config) {
                         config = donnees.config;
                         if (config.inflation === undefined) { config.inflation = 0; }
@@ -461,6 +487,8 @@ champImport.addEventListener("change", function (event) {
                     }
 
                     afficher();
+                    afficherAbonnements();
+                    afficherFrais(frais);
                 },
                 false
             );
@@ -615,6 +643,96 @@ function afficherAbonnements() {
         inflation: config.inflationAbonnements
     });
 }
+// ---------- Frais de la voiture ----------
+// Même mécanique que les abonnements, mais un frais ne se résilie pas :
+// il n'apparaît donc jamais comme décochable dans le simulateur.
+
+function fraisQuitterEdition() {
+    fraisIdEnEdition = null;
+    fraisNom.value = "";
+    fraisMontant.value = "";
+    fraisPeriodicite.value = "annuel";
+    fraisBouton.textContent = "Ajouter";
+    fraisBoutonAnnuler.hidden = true;
+    fraisTitreSaisie.textContent = "Frais de la voiture";
+}
+
+function fraisPasserEnEdition(id) {
+    const f = frais.find(function (x) { return x.id === id; });
+    if (!f) { return; }
+
+    fraisIdEnEdition = id;
+    fraisNom.value = f.nom;
+    fraisMontant.value = f.montant;
+    fraisPeriodicite.value = f.periodicite;
+    fraisBouton.textContent = "Mettre à jour";
+    fraisBoutonAnnuler.hidden = false;
+    fraisTitreSaisie.textContent = "Modifier le frais";
+    document.getElementById("frais-section").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+fraisBoutonAnnuler.addEventListener("click", fraisQuitterEdition);
+
+fraisBouton.addEventListener("click", function () {
+    const nom = fraisNom.value.trim();
+    const montant = parseFloat(fraisMontant.value.replace(",", "."));
+
+    if (nom === "") {
+        alerte("Nom manquant", "Donne un nom à ce frais.");
+        return;
+    }
+
+    if (isNaN(montant) || montant <= 0) {
+        alerte("Montant invalide", "Saisis un montant supérieur à zéro.");
+        return;
+    }
+
+    if (montant > 20000) {
+        alerte("Montant inhabituel", "Vérifie le montant, il semble très élevé.");
+        return;
+    }
+
+    if (fraisIdEnEdition !== null) {
+        const f = frais.find(function (x) { return x.id === fraisIdEnEdition; });
+        f.nom = nom;
+        f.montant = montant;
+        f.periodicite = fraisPeriodicite.value;
+    } else {
+        frais.push({
+            id: Date.now(),
+            nom: nom,
+            montant: montant,
+            periodicite: fraisPeriodicite.value
+        });
+    }
+
+    sauvegarder("frais", frais);
+    fraisQuitterEdition();
+    afficherFrais(frais);
+    afficherVueTotale();
+});
+
+fraisListe.addEventListener("click", function (event) {
+    const id = Number(event.target.dataset.id);
+
+    if (event.target.classList.contains("frais-btn-modif")) {
+        fraisPasserEnEdition(id);
+        return;
+    }
+
+    if (event.target.classList.contains("frais-btn-suppr")) {
+        const f = frais.find(function (x) { return x.id === id; });
+        if (!f) { return; }
+
+        demander("Supprimer ce frais ?", f.nom + ", " + fr(f.montant, 2) + " €", "Supprimer", function () {
+            frais = frais.filter(function (x) { return x.id !== id; });
+            sauvegarder("frais", frais);
+            if (fraisIdEnEdition === id) { fraisQuitterEdition(); }
+            afficherFrais(frais);
+            afficherVueTotale();
+        }, true);
+    }
+});
 // ---------- Coût d'un trajet ----------
 
 const trajetIndispo = document.getElementById("trajet-indispo");
@@ -712,15 +830,27 @@ function mensuelCarburant() {
 }
 
 function afficherVueTotale() {
+    const mensuelFrais = totalMensuel(frais);
+    const carburantMois = mensuelCarburant();
+
     afficherTotal([
-        { nom: "Carburant", mensuel: mensuelCarburant(), inflation: config.inflationCarburant },
+        { nom: "Carburant", mensuel: carburantMois, inflation: config.inflationCarburant },
+        { nom: "Frais de la voiture", mensuel: mensuelFrais, inflation: 0 },
         { nom: "Abonnements", mensuel: totalMensuel(abonnements), inflation: config.inflationAbonnements }
     ], nombreAnomalies(pleins));
 
-    // Le simulateur ne reçoit que les chiffres réels, il ne bouge que ceux-là
+    // Le coût complet au kilomètre : carburant plus frais, sur les km réels.
+    // Presque personne ne connaît le sien.
+    const kmAn = kmParAn(pleins);
+    let coutCompletKm = null;
+    if (kmAn !== null && kmAn > 0 && (carburantMois > 0 || mensuelFrais > 0)) {
+        coutCompletKm = ((carburantMois + mensuelFrais) * 12) / kmAn;
+    }
+
+    afficherEncartVoiture(carburantMois + mensuelFrais, coutCompletKm, mensuelFrais > 0);
+
     let refCarburant = null;
     const segment = dernierSegment(pleins);
-    const kmAn = kmParAn(pleins);
 
     if (segment !== null && kmAn !== null) {
         refCarburant = {
@@ -733,94 +863,11 @@ function afficherVueTotale() {
 
     majSimulateur({
         carburant: refCarburant,
+        fraisMensuel: mensuelFrais,
         abonnements: abonnements.map(function (a) {
             return { id: a.id, nom: a.nom, mensuel: coutMensuel(a) };
         }),
         inflationAbonnements: config.inflationAbonnements
-    });
-}
-// ---------- Calcule tout et demande l'affichage ----------
-
-function afficher() {
-    afficherRappelPlein();
-    afficherTrajet();
-    afficherVueTotale();
-    afficherHistorique(pleins);
-    afficherGraphique(pleins, config.objectifConso);
-    afficherConseilObjectif(pleins, config.objectifConso);
-    afficherRappelExport();
-
-    const segment = dernierSegment(pleins);
-
-    if (segment === null) {
-        if (pleins.length === 0) {
-            afficherMessage("", true);
-        } else if (pleins.length === 1) {
-            afficherMessage("Premier plein enregistré. Note le prochain pour voir ta consommation.", false);
-        } else {
-            afficherMessage("Il faut deux pleins complets pour calculer ta consommation.", false);
-        }
-        return;
-    }
-
-    const kmAn = kmParAn(pleins);
-
-    if (kmAn === null) {
-        afficherMessage("Reviens après ton prochain plein pour une projection fiable.", false);
-        return;
-    }
-
-    const prixMoyen = prixMoyenFiable(pleins);
-    // Les deux branches doivent tourner sur le MÊME prix au litre,
-    // sinon le rapport entre les projections ne reflète plus l'écart de conso.
-    const coutKmActuel = coutParKmTheorique(segment.conso, prixMoyen);
-    const coutKmObjectif = coutParKmTheorique(config.objectifConso, prixMoyen);
-    const resultat = comparer(coutKmActuel, coutKmObjectif, kmAn, 5, config.inflationCarburant);
-    // Si l'objectif est à moins de 0,05 L de la conso réelle, il est atteint.
-    // Afficher "2 € d'écart sur 5 ans" ne dit rien à personne.
-    const objectifAtteint = Math.abs(segment.conso - config.objectifConso) < 0.05;
-    // Scénario ambitieux : ta meilleure performance déjà réalisée
-    const segmentsOk = segmentsFiables(pleins);
-    let potentiel = null;
-
-    if (segmentsOk.length >= 2) {
-        let meilleure = segmentsOk[0].conso;
-        for (let i = 0; i < segmentsOk.length; i++) {
-            if (segmentsOk[i].conso < meilleure) { meilleure = segmentsOk[i].conso; }
-        }
-
-        // On n'affiche ce scénario que s'il apporte vraiment quelque chose
-        // Le scénario n'a de sens que si le meilleur plein est à la fois
-        // meilleur que l'actuel ET plus exigeant que l'objectif déjà fixé.
-        if (meilleure < segment.conso - 0.1 && meilleure < config.objectifConso - 0.05) {
-            const coutKmMeilleur = coutParKmTheorique(meilleure, prixMoyen);
-            const compare = comparer(coutKmActuel, coutKmMeilleur, kmAn, 5, config.inflationCarburant);
-        }
-    }
-    // Variation par rapport au segment fiable précédent
-    let variation = null;
-    if (segmentsOk.length >= 2) {
-        variation = segment.conso - segmentsOk[segmentsOk.length - 2].conso;
-    }
-
-    afficherResultats({
-        conso: segment.conso,
-        coutKm: totalDepense(pleins) / (pleins[pleins.length - 1].km - pleins[0].km),
-        objectifConso: config.objectifConso,
-        projectionActuelle: resultat.actuelle,
-        projectionObjectif: resultat.objectif,
-        ecart: resultat.ecart,
-        kmAn: kmAn,
-        joursSuivis: Math.round((pleins[pleins.length - 1].date - pleins[0].date) / 86400000),
-        prixMoyen: prixMoyen,
-        totalDepense: totalDepense(pleins),
-        totalLitres: totalLitres(pleins),
-        kmTotal: pleins[pleins.length - 1].km - pleins[0].km,
-        variation: variation,
-        anomalies: nombreAnomalies(pleins),
-        objectifAtteint: objectifAtteint,
-        inflation: config.inflationCarburant,
-        potentiel: potentiel
     });
 }
 
@@ -828,5 +875,6 @@ function afficher() {
 // ---------- Au démarrage ----------
 initNavigation();
 initSimulateur();
+afficherFrais(frais);
 afficher();
 afficherAbonnements();

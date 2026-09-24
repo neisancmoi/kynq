@@ -8,7 +8,8 @@ const PAIEMENTS_PAR_AN = {
     mensuel: 12,
     annuel: 1,
     hebdomadaire: 52,
-    trimestriel: 4
+    trimestriel: 4,
+    biennal: 0.5
 };
 
 // Ramène n'importe quel abonnement à son coût mensuel
@@ -31,6 +32,7 @@ export function libellePeriodicite(periodicite) {
     if (periodicite === "annuel") { return "par an"; }
     if (periodicite === "hebdomadaire") { return "par semaine"; }
     if (periodicite === "trimestriel") { return "par trimestre"; }
+    if (periodicite === "biennal") { return "tous les 2 ans"; }
     return "par mois";
 }
 

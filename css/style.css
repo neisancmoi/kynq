@@ -1037,3 +1037,55 @@ select:focus {
   color: var(--texte);
   margin: 4px 0 0;
 }
+
+/* ---------- Frais de la voiture ---------- */
+.frais-aide {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--texte-secondaire);
+  margin: -6px 0 16px;
+}
+
+#frais-liste {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+}
+
+#frais-liste li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas:
+    "nom cout actions"
+    "detail detail actions";
+  align-items: start;
+  gap: 2px 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--bordure);
+}
+
+#frais-liste li:last-child {
+  border-bottom: none;
+}
+
+#frais-vide {
+  font-size: 14px;
+  color: var(--texte-secondaire);
+  margin: 12px 0 0;
+}
+
+/* ---------- Encart voiture sur Total ---------- */
+#total-encart-titre {
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+#total-encart-valeur {
+  font-size: 34px;
+  font-weight: 700;
+  margin-top: 4px !important;
+}
+
+#total-encart-detail {
+  line-height: 1.5;
+}
