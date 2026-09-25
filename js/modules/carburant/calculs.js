@@ -156,6 +156,9 @@ export function dernierSegment(pleins) {
 // ---------- Agrégats ----------
 
 export function kmParAn(pleins) {
+  if (pleins.length < 2) {
+    return null;
+  }
   const premier = pleins[0];
   const dernier = pleins[pleins.length - 1];
 

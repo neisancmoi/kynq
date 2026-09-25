@@ -341,6 +341,85 @@ function enregistrerPlein(km, litres, montant, dateSaisie) {
 }
 
 
+
+// ---------- Affichage principal du carburant ----------
+
+function afficher() {
+    // Ces morceaux gèrent eux-mêmes le cas où il n'y a pas assez de données
+    afficherHistorique(pleins);
+    afficherGraphique(pleins, config.objectifConso);
+    afficherConseilObjectif(pleins, config.objectifConso);
+    afficherRappelExport();
+    afficherRappelPlein();
+    afficherTrajet();
+    afficherVueTotale();
+
+    if (pleins.length === 0) {
+        afficherMessage("Ajoute ton premier plein pour commencer.", true);
+        return;
+    }
+
+    const segment = dernierSegment(pleins);
+    if (segment === null) {
+        afficherMessage("Il faut deux pleins complets pour calculer ta consommation.", false);
+        return;
+    }
+
+    const kmAn = kmParAn(pleins);
+    if (kmAn === null) {
+        afficherMessage("Tes pleins sont trop rapprochés pour estimer tes kilomètres par an. Ça viendra au prochain.", false);
+        return;
+    }
+
+    const inflation = config.inflationCarburant;
+    const prixMoyen = prixMoyenFiable(pleins);
+    const coutKm = coutParKmTheorique(segment.conso, prixMoyen);
+
+    // Même moteur que partout : coût d'un km, km par an, 5 ans, inflation
+    const projectionActuelle = projeter(coutKm, kmAn, 5, inflation);
+    const projectionObjectif = projeter(coutParKmTheorique(config.objectifConso, prixMoyen), kmAn, 5, inflation);
+
+    // Meilleur plein fiable déjà réalisé, et variation avec l'avant-dernier
+    const segments = segmentsFiables(pleins);
+    let meilleure = segment.conso;
+    for (let i = 0; i < segments.length; i++) {
+        if (segments[i].conso < meilleure) { meilleure = segments[i].conso; }
+    }
+
+    let potentiel = null;
+    if (meilleure < segment.conso) {
+        const projectionMeilleure = projeter(coutParKmTheorique(meilleure, prixMoyen), kmAn, 5, inflation);
+        potentiel = { conso: meilleure, ecart: projectionActuelle - projectionMeilleure };
+    }
+
+    let variation = null;
+    if (segments.length >= 2) {
+        variation = segment.conso - segments[segments.length - 2].conso;
+    }
+
+    const premier = pleins[0];
+    const dernier = pleins[pleins.length - 1];
+
+    afficherResultats({
+        projectionActuelle: projectionActuelle,
+        projectionObjectif: projectionObjectif,
+        conso: segment.conso,
+        objectifConso: config.objectifConso,
+        objectifAtteint: Math.abs(segment.conso - config.objectifConso) < 0.01,
+        ecart: projectionActuelle - projectionObjectif,
+        potentiel: potentiel,
+        variation: variation,
+        kmAn: kmAn,
+        joursSuivis: Math.round((dernier.date - premier.date) / 86400000),
+        prixMoyen: prixMoyen,
+        inflation: inflation,
+        anomalies: nombreAnomalies(pleins),
+        totalDepense: totalDepense(pleins),
+        totalLitres: totalLitres(pleins),
+        kmTotal: dernier.km - premier.km,
+        coutKm: coutKm
+    });
+}
 // ---------- Réglages ----------
 
 boutonObjectif.addEventListener("click", function () {
