@@ -1,4 +1,4 @@
-const CACHE = "kynq-v17";
+const CACHE = "kynq-v18";
 
 const FICHIERS = [
   "./index.html",
@@ -13,6 +13,7 @@ const FICHIERS = [
   "./js/modules/carburant/vue.js",
   "./js/modules/abonnements/calculs.js",
   "./js/modules/abonnements/vue.js",
+  "./js/modules/frais/vue.js",
   "./manifest.json",
   "./icone-192.png",
   "./icone-512.png"
@@ -29,6 +30,10 @@ self.addEventListener("install", function (event) {
 
 // À chaque requête : on sert le cache si on l'a, sinon le réseau
 self.addEventListener("fetch", function (event) {
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) {
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then(function (reponse) {
       return reponse || fetch(event.request);
