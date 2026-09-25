@@ -51,7 +51,10 @@ if (config.inflationCarburant === undefined) {
 if (config.inflationAbonnements === undefined) {
     config.inflationAbonnements = 0;
 }
-
+// Type de carburant : SP95 par défaut pour les données existantes
+if (config.carburant === undefined) {
+    config.carburant = "sp95";
+}
 // Rattrapage des anciennes données
 let besoinSauvegarde = false;
 for (let i = 0; i < pleins.length; i++) {
@@ -80,6 +83,7 @@ const bouton = document.getElementById("btn-enregistrer");
 const boutonAnnuler = document.getElementById("btn-annuler");
 
 const champObjectif = document.getElementById("objectif");
+const champCarburant = document.getElementById("type-carburant");
 const boutonObjectif = document.getElementById("btn-objectif");
 const champInflation = document.getElementById("inflation");
 const boutonInflation = document.getElementById("btn-inflation");
@@ -147,6 +151,7 @@ champDate.value = dateAujourdhui();
 champObjectif.value = config.objectifConso;
 champInflation.value = config.inflationCarburant;
 aboChampInflation.value = config.inflationAbonnements;
+champCarburant.value = config.carburant;
 
 
 // ---------- Modale générique ----------
@@ -282,7 +287,7 @@ bouton.addEventListener("click", function () {
 
     // Le prix au litre est dérivé de deux champs : c'est là que les inversions se voient
     const prixSaisi = montant / litres;
-    if (!prixPlausible(prixSaisi)) {
+    if (!prixPlausible(prixSaisi, config.carburant)) {
         alerte("Prix au litre improbable", "Ça ferait " + fr(prixSaisi, 2) + " € le litre. Vérifie les litres et le montant, ils sont peut-être inversés.");
         return;
     }
@@ -347,6 +352,7 @@ function enregistrerPlein(km, litres, montant, dateSaisie) {
 function afficher() {
     // Ces morceaux gèrent eux-mêmes le cas où il n'y a pas assez de données
     afficherHistorique(pleins);
+    afficherHistorique(pleins, config.carburant);
     afficherGraphique(pleins, config.objectifConso);
     afficherConseilObjectif(pleins, config.objectifConso);
     afficherRappelExport();
@@ -423,6 +429,12 @@ function afficher() {
 // ---------- Réglages ----------
 
 boutonObjectif.addEventListener("click", function () {
+    // Un choix dans une liste s'enregistre tout de suite, pas besoin de bouton
+    champCarburant.addEventListener("change", function () {
+        config.carburant = champCarburant.value;
+        sauvegarder("config", config);
+        afficher();
+    });
     const valeur = Number(champObjectif.value);
 
     if (valeur <= 0 || valeur > 30) {
@@ -560,6 +572,8 @@ champImport.addEventListener("change", function (event) {
                     if (donnees.config) {
                         config = donnees.config;
                         if (config.inflation === undefined) { config.inflation = 0; }
+                        if (config.carburant === undefined) { config.carburant = "sp95"; }
+                        champCarburant.value = config.carburant;
                         sauvegarder("config", config);
                         champObjectif.value = config.objectifConso;
                         champInflation.value = config.inflation;

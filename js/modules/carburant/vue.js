@@ -180,7 +180,7 @@ function afficherTendance(variation) {
 
 // ---------- Historique ----------
 
-export function afficherHistorique(pleins) {
+export function afficherHistorique(pleins, carburant) {
     listePleins.innerHTML = "";
     historiqueVide.hidden = pleins.length > 0;
 
@@ -253,7 +253,7 @@ export function afficherHistorique(pleins) {
         let classePrix = "prix-neutre";
         let signePrix = "";
 
-        if (!prixPlausible(prixLitre)) {
+        if (!prixPlausible(prixLitre, carburant)) {
             classePrix = "prix-aberrant";
             signePrix = "⚠ ";
         } else if (p.suspect) {

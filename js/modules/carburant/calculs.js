@@ -4,14 +4,24 @@
 // ============================================
 
 // ---------- Bornes de plausibilité ----------
-// Valables pour n'importe quel véhicule thermique.
-export const PRIX_LITRE_MIN = 0.80;
-export const PRIX_LITRE_MAX = 4.00;
+// Les prix varient beaucoup selon le carburant : l'E85 tourne autour de 0,90 €
+// et le SP98 autour de 2 €. Une fourchette unique ne détecterait rien.
+// Les clés sont les mêmes que dans l'API des prix (sp95_prix, e10_prix...).
+export const BORNES_PRIX = {
+  sp95: { min: 1.00, max: 3.00 },
+  e10: { min: 1.00, max: 3.00 },
+  sp98: { min: 1.10, max: 3.20 },
+  gazole: { min: 1.00, max: 3.00 },
+  e85: { min: 0.50, max: 1.80 },
+  gplc: { min: 0.60, max: 2.00 }
+};
+
 export const CONSO_MIN = 3;
 export const CONSO_MAX = 25;
 
-export function prixPlausible(prix) {
-  return prix >= PRIX_LITRE_MIN && prix <= PRIX_LITRE_MAX;
+export function prixPlausible(prix, carburant) {
+  const bornes = BORNES_PRIX[carburant] || BORNES_PRIX.sp95;
+  return prix >= bornes.min && prix <= bornes.max;
 }
 
 export function consoPlausible(conso) {

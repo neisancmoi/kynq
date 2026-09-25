@@ -288,6 +288,16 @@
 
         <section id="reglages-carburant">
           <h2 class="titre-module">Carburant</h2>
+          <label for="type-carburant">Ton carburant</label>
+          <select id="type-carburant">
+            <option value="sp95">SP95</option>
+            <option value="e10">SP95-E10</option>
+            <option value="sp98">SP98</option>
+            <option value="gazole">Gazole</option>
+            <option value="e85">E85 (Superéthanol)</option>
+            <option value="gplc">GPL</option>
+          </select>
+          <p>Sert à vérifier que les prix saisis sont cohérents, et bientôt à chercher les stations.</p>
 
           <label for="objectif">Objectif de consommation (L/100km)</label>
           <input type="number" id="objectif" inputmode="decimal" step="0.1">
