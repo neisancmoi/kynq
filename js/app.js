@@ -33,8 +33,12 @@ import {
     afficherResultats,
     afficherHistorique,
     afficherGraphique,
-    afficherConseilObjectif
+    afficherConseilObjectif,
+    afficherStations,
+    afficherStationsChargement,
+    afficherStationsErreur
 } from "./modules/carburant/vue.js";
+import { positionParGeoloc, positionParCodePostal, chercherStations } from "./modules/carburant/stations.js";
 
 
 // ---------- Les données ----------
@@ -351,7 +355,6 @@ function enregistrerPlein(km, litres, montant, dateSaisie) {
 
 function afficher() {
     // Ces morceaux gèrent eux-mêmes le cas où il n'y a pas assez de données
-    afficherHistorique(pleins);
     afficherHistorique(pleins, config.carburant);
     afficherGraphique(pleins, config.objectifConso);
     afficherConseilObjectif(pleins, config.objectifConso);
@@ -428,13 +431,14 @@ function afficher() {
 }
 // ---------- Réglages ----------
 
+// Un choix dans une liste s'enregistre tout de suite, pas besoin de bouton
+champCarburant.addEventListener("change", function () {
+    config.carburant = champCarburant.value;
+    sauvegarder("config", config);
+    afficher();
+});
+
 boutonObjectif.addEventListener("click", function () {
-    // Un choix dans une liste s'enregistre tout de suite, pas besoin de bouton
-    champCarburant.addEventListener("change", function () {
-        config.carburant = champCarburant.value;
-        sauvegarder("config", config);
-        afficher();
-    });
     const valeur = Number(champObjectif.value);
 
     if (valeur <= 0 || valeur > 30) {
@@ -872,8 +876,100 @@ function afficherTrajet() {
 
 trajetDistance.addEventListener("input", afficherTrajet);
 trajetAr.addEventListener("change", afficherTrajet);
-// ---------- Rappel de plein oublié ----------
+// ---------- Stations autour de toi ----------
 
+const stationsRayon = document.getElementById("stations-rayon");
+const stationsCp = document.getElementById("stations-cp");
+const stationsBtnGeoloc = document.getElementById("stations-btn-geoloc");
+const stationsBtnCp = document.getElementById("stations-btn-cp");
+
+// On retrouve les derniers choix pour ne pas tout retaper
+if (config.stationsRayon !== undefined) { stationsRayon.value = config.stationsRayon; }
+if (config.stationsCp !== undefined) { stationsCp.value = config.stationsCp; }
+
+// Ce qu'il faut pour comparer une station à tes habitudes
+function referenceStations() {
+    if (pleins.length === 0) { return null; }
+
+    // Les pleins partiels feraient baisser la taille d'un plein type
+    const complets = pleins.filter(function (p) { return p.complet; });
+    const source = complets.length > 0 ? complets : pleins;
+
+    const segment = dernierSegment(pleins);
+    const kmAn = kmParAn(pleins);
+
+    return {
+        prixMoyen: prixMoyenFiable(pleins),
+        litresPlein: totalLitres(source) / source.length,
+        conso: segment !== null ? segment.conso : null,
+        litresAn: segment !== null && kmAn !== null ? (segment.conso * kmAn) / 100 : null
+    };
+}
+
+// Les 10 moins chères, avec tous les chiffres prêts pour la vue
+function preparerStations(stations, ref) {
+    const resultat = stations.slice(0, 10);
+
+    for (let i = 0; i < resultat.length; i++) {
+        const s = resultat[i];
+        s.ecartLitre = null;
+        s.gainPlein = null;
+        s.gainAn = null;
+        s.litresPlein = null;
+        s.coutAllerRetour = null;
+
+        if (ref === null) { continue; }
+
+        s.ecartLitre = s.prix - ref.prixMoyen;
+        s.litresPlein = ref.litresPlein;
+        s.gainPlein = -s.ecartLitre * ref.litresPlein;
+        if (ref.litresAn !== null) { s.gainAn = -s.ecartLitre * ref.litresAn; }
+        if (ref.conso !== null) { s.coutAllerRetour = ((s.distance * 2 * ref.conso) / 100) * s.prix; }
+    }
+    return resultat;
+}
+
+// Déclenché seulement par un bouton, jamais à l'ouverture de l'onglet
+async function chargerStations(obtenirPosition) {
+    afficherStationsChargement();
+    stationsBtnGeoloc.disabled = true;
+    stationsBtnCp.disabled = true;
+
+    try {
+        const position = await obtenirPosition();
+        const rayon = Number(stationsRayon.value);
+        const stations = await chercherStations(position, rayon, config.carburant);
+        afficherStations(preparerStations(stations, referenceStations()), rayon);
+    } catch (erreur) {
+        afficherStationsErreur(erreur.message);
+    }
+
+    stationsBtnGeoloc.disabled = false;
+    stationsBtnCp.disabled = false;
+}
+
+stationsBtnGeoloc.addEventListener("click", function () {
+    chargerStations(positionParGeoloc);
+});
+
+stationsBtnCp.addEventListener("click", function () {
+    const cp = stationsCp.value.trim();
+    if (!/^\d{5}$/.test(cp)) {
+        afficherStationsErreur("cp-invalide");
+        return;
+    }
+    config.stationsCp = cp;
+    sauvegarder("config", config);
+    chargerStations(function () { return positionParCodePostal(cp); });
+});
+
+stationsRayon.addEventListener("change", function () {
+    config.stationsRayon = Number(stationsRayon.value);
+    sauvegarder("config", config);
+});
+
+
+// ---------- Rappel de plein oublié ----------
 function afficherRappelPlein() {
     const oubli = pleinPeutEtreOublie(pleins);
 

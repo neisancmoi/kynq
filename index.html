@@ -35,11 +35,11 @@
 
           <div id="total-resultats" hidden>
             <p>Tes dépenses récurrentes</p>
-            <p id="total-mensuel">—</p>
+            <p id="total-mensuel"></p>
             <p class="equiv" id="total-annuel"></p>
 
             <p class="bloc-projection">Sur les 5 prochaines années</p>
-            <p id="total-5ans">—</p>
+            <p id="total-5ans"></p>
             <p id="total-phrase"></p>
             <p id="total-note-anomalies"></p>
             <div id="total-encart" hidden>
@@ -115,24 +115,24 @@
 
           <div id="resultats" hidden>
             <p>Ta consommation</p>
-            <p id="conso-reelle">—</p>
+            <p id="conso-reelle"></p>
             <p id="tendance"></p>
 
             <p class="bloc-projection">Sur les 5 prochaines années</p>
             <p>Au rythme actuel</p>
-            <p id="projection-actuelle">—</p>
+            <p id="projection-actuelle"></p>
             <p class="equiv" id="equiv-actuelle"></p>
 
-            <p id="label-objectif">Si tu descends à <span id="objectif-inline">—</span></p>
-            <p id="projection-objectif">—</p>
+            <p id="label-objectif">Si tu descends à <span id="objectif-inline"></span></p>
+            <p id="projection-objectif"></p>
             <p class="equiv" id="equiv-objectif"></p>
 
             <p id="label-ecart">Écart récupérable</p>
-            <p id="ecart">—</p>
+            <p id="ecart"></p>
             <p class="equiv" id="equiv-ecart"></p>
             <p id="phrase-ecart"></p>
             <p class="bloc-scenario" id="label-potentiel"></p>
-            <p id="potentiel">—</p>
+            <p id="potentiel"></p>
             <p class="equiv" id="equiv-potentiel"></p>
             <p id="phrase-potentiel"></p>
             <p id="base-calcul"></p>
@@ -141,10 +141,10 @@
 
             <p class="bloc-projection">Depuis le début</p>
             <p>Total dépensé</p>
-            <p id="total-depense">—</p>
+            <p id="total-depense"></p>
             <p class="equiv" id="total-detail"></p>
             <p>Coût au kilomètre</p>
-            <p id="cout-km">—</p>
+            <p id="cout-km"></p>
           </div>
         </section>
         <section id="ecran-trajet">
@@ -163,6 +163,28 @@
             <p id="trajet-resultat"></p>
             <p id="trajet-base"></p>
           </div>
+        </section>
+        <section id="stations-section">
+          <h2>Stations autour de toi</h2>
+          <p class="frais-aide">Les prix officiels des stations, comparés à ce que tu payes d'habitude.</p>
+
+          <label for="stations-rayon">Rayon de recherche</label>
+          <select id="stations-rayon">
+            <option value="5">5 km</option>
+            <option value="10">10 km</option>
+            <option value="15" selected>15 km</option>
+            <option value="25">25 km</option>
+            <option value="40">40 km</option>
+          </select>
+
+          <button id="stations-btn-geoloc">Utiliser ma position</button>
+
+          <label for="stations-cp">Ou ton code postal</label>
+          <input type="text" id="stations-cp" inputmode="numeric" maxlength="5" placeholder="03000">
+          <button id="stations-btn-cp" class="btn-secondaire">Chercher</button>
+
+          <p id="stations-message"></p>
+          <ul id="stations-liste"></ul>
         </section>
         <section id="ecran-saisie">
           <h2 id="titre-saisie">Nouveau plein</h2>
@@ -246,11 +268,11 @@
 
           <div id="abo-resultats" hidden>
             <p>Total par mois</p>
-            <p id="abo-mensuel">—</p>
+            <p id="abo-mensuel"></p>
             <p class="equiv" id="abo-annuel"></p>
 
             <p class="bloc-projection">Sur les 5 prochaines années</p>
-            <p id="abo-projection-5ans">—</p>
+            <p id="abo-projection-5ans"></p>
             <p id="abo-phrase"></p>
           </div>
         </section>

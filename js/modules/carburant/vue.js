@@ -500,3 +500,99 @@ export function afficherGraphique(pleins, objectifConso) {
         etiquettes +
         "</svg>";
 }
+
+// ---------- Stations autour de toi ----------
+
+const stationsMessage = document.getElementById("stations-message");
+const stationsListe = document.getElementById("stations-liste");
+
+const NOMS_CARBURANTS = {
+    sp95: "SP95", e10: "SP95-E10", sp98: "SP98",
+    gazole: "Gazole", e85: "E85", gplc: "GPL"
+};
+
+const MESSAGES_ERREUR = {
+    "geoloc-indispo": "Ton navigateur ne donne pas accès à ta position. Utilise ton code postal.",
+    "geoloc-refusee": "Position refusée ou introuvable. Autorise la localisation, ou utilise ton code postal.",
+    "cp-invalide": "Saisis un code postal à 5 chiffres.",
+    "cp-inconnu": "Ce code postal est introuvable.",
+    "api-adresse": "Le service des adresses ne répond pas. Réessaie dans un moment."
+};
+
+export function afficherStationsChargement() {
+    stationsListe.innerHTML = "";
+    stationsMessage.textContent = "Recherche des stations...";
+}
+
+export function afficherStationsErreur(code) {
+    stationsListe.innerHTML = "";
+    stationsMessage.textContent = MESSAGES_ERREUR[code] ||
+        "Impossible de récupérer les prix. Vérifie ta connexion et réessaie.";
+}
+
+export function afficherStations(stations, rayon) {
+    stationsListe.innerHTML = "";
+
+    if (stations.length === 0) {
+        stationsMessage.textContent = "Aucune station ne vend ton carburant dans un rayon de " +
+            rayon + " km. Essaie un rayon plus grand.";
+        return;
+    }
+
+    stationsMessage.textContent = (stations.length === 1 ? "Une station" : stations.length + " stations") +
+        ", de la moins chère à la plus chère. Distances à vol d'oiseau.";
+
+    for (let i = 0; i < stations.length; i++) {
+        const s = stations[i];
+        const ligne = document.createElement("li");
+
+        // Comparaison avec tes propres pleins, pas dans l'absolu
+        let classePrix = "prix-neutre";
+        let comparaison = "Ajoute des pleins pour comparer ce prix à ta moyenne.";
+
+        if (s.ecartLitre !== null) {
+            if (s.ecartLitre < 0) {
+                classePrix = "prix-bas";
+                comparaison = nb(Math.abs(s.ecartLitre), 3) + " € de moins que ta moyenne par litre. Soit " +
+                    nb(s.gainPlein, 2) + " € sur un plein de " + ent(s.litresPlein) + " L";
+                if (s.gainAn !== null) {
+                    comparaison = comparaison + ", et " + ent(s.gainAn) + " € sur un an à ton rythme";
+                }
+                comparaison = comparaison + ".";
+                if (s.coutAllerRetour !== null && s.coutAllerRetour >= s.gainPlein) {
+                    comparaison = comparaison + " Mais l'aller-retour te coûte environ " +
+                        nb(s.coutAllerRetour, 2) + " €, ça ne vaut le coup que si tu passes devant.";
+                }
+            } else if (s.ecartLitre > 0) {
+                classePrix = "prix-cher";
+                comparaison = nb(s.ecartLitre, 3) + " € de plus que ta moyenne par litre.";
+            } else {
+                comparaison = "Pile à ta moyenne.";
+            }
+        }
+
+        // Un vieux prix peut faire faire des kilomètres pour rien
+        let texteMaj = "Date de mise à jour inconnue";
+        let alerteMaj = "";
+        if (s.maj !== null) {
+            const jours = Math.floor((Date.now() - s.maj) / 86400000);
+            if (jours <= 0) { texteMaj = "Prix mis à jour aujourd'hui"; }
+            else if (jours === 1) { texteMaj = "Prix mis à jour hier"; }
+            else { texteMaj = "Prix mis à jour il y a " + jours + " jours"; }
+
+            if (jours > 3) {
+                alerteMaj = "<span class='histo-anomalie'>⚠ Prix ancien, il a peut-être changé depuis.</span>";
+            }
+        }
+
+        ligne.innerHTML =
+            "<span class='histo-date'>" + s.adresse + ", " + s.ville + "</span>" +
+            "<span class='histo-conso " + classePrix + "'>" + nb(s.prix, 3) + " €/L</span>" +
+            "<span class='histo-detail'>À " + nb(s.distance, 1) + " km, " +
+            NOMS_CARBURANTS[s.carburant] + ". " + texteMaj + ".</span>" +
+            "<span class='histo-note'>" + comparaison + "</span>" +
+            alerteMaj;
+
+        stationsListe.appendChild(ligne);
+    }
+}
