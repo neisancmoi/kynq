@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#12141a">
 </head>
 
-<body data-ecran="total">
+<body data-ecran-actif="total">
 
   <main>
     <div id="piste">
@@ -33,12 +33,12 @@
             </div>
           </div>
 
-          <div class="segments" data-ecran="total" role="tablist">
+          <div class="segments" data-sous-ecran="total" role="tablist">
             <button data-panneau="apercu" role="tab">Aperçu</button>
             <button data-panneau="simuler" role="tab">Simuler</button>
           </div>
 
-          <div class="panneau" data-ecran="total" data-panneau="apercu">
+          <div class="panneau" data-sous-ecran="total" data-panneau="apercu">
             <section id="total-projection" class="hero">
               <div id="total-accueil" hidden>
                 <p class="accueil-phrase">Kynq additionne tes dépenses récurrentes et te montre ce qu'elles
@@ -74,7 +74,7 @@
             </section>
           </div>
 
-          <div class="panneau" data-ecran="total" data-panneau="simuler" hidden>
+          <div class="panneau" data-sous-ecran="total" data-panneau="simuler" hidden>
             <section id="but-section">
               <h2>Ce que tu veux financer</h2>
               <div class="champs-duo">
@@ -145,7 +145,7 @@
             <h1>Voiture</h1>
           </header>
 
-          <div class="segments" data-ecran="carburant" role="tablist">
+          <div class="segments" data-sous-ecran="carburant" role="tablist">
             <button data-panneau="apercu" role="tab">Aperçu</button>
             <button data-panneau="pleins" role="tab">Pleins</button>
             <button data-panneau="stations" role="tab">Stations</button>
@@ -153,7 +153,7 @@
           </div>
 
           <!-- Aperçu -->
-          <div class="panneau" data-ecran="carburant" data-panneau="apercu">
+          <div class="panneau" data-sous-ecran="carburant" data-panneau="apercu">
             <section id="ecran-projection" class="hero">
               <div id="accueil" hidden>
                 <p class="accueil-phrase">Kynq te montre ce que ta conduite te coûtera sur les 5 prochaines années,
@@ -255,7 +255,7 @@
           </div>
 
           <!-- Pleins -->
-          <div class="panneau" data-ecran="carburant" data-panneau="pleins" hidden>
+          <div class="panneau" data-sous-ecran="carburant" data-panneau="pleins" hidden>
             <section id="ecran-historique">
               <h2>Historique</h2>
               <p class="legende-prix" id="legende-prix"></p>
@@ -266,7 +266,7 @@
           </div>
 
           <!-- Stations -->
-          <div class="panneau" data-ecran="carburant" data-panneau="stations" hidden>
+          <div class="panneau" data-sous-ecran="carburant" data-panneau="stations" hidden>
             <section id="stations-section">
               <h2>Stations autour de toi</h2>
               <p class="aide">Les prix officiels des stations, comparés à ce que tu payes d'habitude.</p>
@@ -294,7 +294,7 @@
           </div>
 
           <!-- Frais -->
-          <div class="panneau" data-ecran="carburant" data-panneau="frais" hidden>
+          <div class="panneau" data-sous-ecran="carburant" data-panneau="frais" hidden>
             <section id="frais-liste-section">
               <h2>Frais de la voiture</h2>
               <p class="aide">Assurance, contrôle technique, entretien. Pour l'entretien, mets un budget annuel

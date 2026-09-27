@@ -9,6 +9,7 @@ const FICHIERS = [
   "./js/core/navigation.js",
   "./js/core/total.js",
   "./js/core/simulateur.js",
+    "./js/core/interface.js",
   "./js/modules/carburant/calculs.js",
   "./js/modules/carburant/vue.js",
   "./js/modules/carburant/stations.js",

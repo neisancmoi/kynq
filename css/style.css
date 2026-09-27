@@ -331,8 +331,8 @@ main {
   transform: scale(0.92);
 }
 
-body[data-ecran="reglages"] #fab,
-body[data-ecran="total"][data-panneau-total="simuler"] #fab,
+body[data-ecran-actif="reglages"] #fab,
+body[data-ecran-actif="total"][data-panneau-total="simuler"] #fab,
 body.feuille-active #fab {
   transform: scale(0.4);
   opacity: 0;
