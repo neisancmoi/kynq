@@ -1151,3 +1151,26 @@ label[for="stations-cp"] {
   min-width: 44px;
   min-height: 44px;
 }
+
+/* ---------- Simulateur : curseur + champ sur la même ligne ---------- */
+.simu-ligne {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.simu-ligne input[type="range"] {
+  flex: 1;
+  margin: 0;
+}
+
+.simu-ligne .simu-saisie {
+  width: 96px;
+  flex: none;
+  margin: 0;
+  text-align: right;
+}
+
+#but-resultat {
+  margin-top: 8px;
+}

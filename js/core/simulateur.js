@@ -29,6 +29,16 @@ function ecart(delta, decimales, unite) {
     return " (" + signe + nb(delta, decimales) + unite + ")";
 }
 
+// Un Français tape 6,5 : on accepte la virgule
+function lireNombre(texte) {
+    return parseFloat(String(texte).replace(",", "."));
+}
+
+// Écrit un nombre dans un champ, avec une virgule
+function ecrireNombre(valeur, decimales) {
+    return valeur.toFixed(decimales).replace(".", ",");
+}
+
 
 // ---------- Éléments ----------
 
@@ -39,6 +49,9 @@ const blocAbos = document.getElementById("simu-abonnements");
 const curseurConso = document.getElementById("simu-conso");
 const curseurKm = document.getElementById("simu-km");
 const curseurPrix = document.getElementById("simu-prix");
+const saisieConso = document.getElementById("simu-conso-saisie");
+const saisieKm = document.getElementById("simu-km-saisie");
+const saisiePrix = document.getElementById("simu-prix-saisie");
 const valConso = document.getElementById("simu-conso-val");
 const valKm = document.getElementById("simu-km-val");
 const valPrix = document.getElementById("simu-prix-val");
@@ -90,20 +103,44 @@ function remettreCurseurs() {
     if (reference.carburant === null) { return; }
     const c = reference.carburant;
 
-    // Les curseurs démarrent pile sur ta situation réelle
-    curseurConso.min = Math.max(1, c.conso - 2);
-    curseurConso.max = c.conso + 1;
+    // Plages centrées sur ta situation réelle, pour pouvoir régler finement.
+    // Pour aller au-delà, on tape la valeur dans le champ à côté.
+    curseurConso.min = c.conso * 0.7;
+    curseurConso.max = c.conso * 1.3;
     curseurConso.value = c.conso;
 
-    // Large vers le haut : quelqu'un peut changer de boulot et tripler ses trajets
-    curseurKm.min = c.kmAn * 0.25;
-    curseurKm.max = Math.max(c.kmAn * 3, 40000);
+    curseurKm.min = c.kmAn * 0.5;
+    curseurKm.max = c.kmAn * 1.5;
     curseurKm.value = c.kmAn;
 
-    // Large aussi : le carburant peut monter bien au-delà du prix actuel
-    curseurPrix.min = Math.max(0.8, c.prix - 0.8);
-    curseurPrix.max = Math.max(c.prix + 1.5, 3.5);
+    curseurPrix.min = Math.max(0.5, c.prix - 0.3);
+    curseurPrix.max = c.prix + 0.5;
     curseurPrix.value = c.prix;
+
+    remplirSaisies();
+}
+
+
+// Les champs affichent la valeur exacte du curseur
+function remplirSaisies() {
+    saisieConso.value = ecrireNombre(Number(curseurConso.value), 2);
+    saisieKm.value = String(Math.round(Number(curseurKm.value)));
+    saisiePrix.value = ecrireNombre(Number(curseurPrix.value), 3);
+}
+
+
+// Une valeur tapée hors de la plage élargit le curseur au lieu d'être refusée
+function appliquerSaisie(saisie, curseur) {
+    const valeur = lireNombre(saisie.value);
+    if (isNaN(valeur) || valeur <= 0) {
+        remplirSaisies();
+        return;
+    }
+    if (valeur < Number(curseur.min)) { curseur.min = valeur; }
+    if (valeur > Number(curseur.max)) { curseur.max = valeur; }
+    curseur.value = valeur;
+    calculer();
+    remplirSaisies();
 }
 
 
@@ -147,6 +184,7 @@ function calculer() {
     let simule5 = 0;
     let actuelMois = 0;
     let simuleMois = 0;
+
     // Les frais de la voiture comptent dans le total mais ne se résilient pas :
     // ils sont identiques des deux côtés de la simulation.
     const fraisMois = reference.fraisMensuel || 0;
@@ -166,7 +204,7 @@ function calculer() {
 
         valConso.textContent = nb(conso, 2) + " L/100" + ecart(conso - c.conso, 2, " L");
         valKm.textContent = ent(km) + " km" + ecart(Math.round(km - c.kmAn), 0, " km");
-        valPrix.textContent = nb(prix, 2) + " €" + ecart(prix - c.prix, 2, " €");
+        valPrix.textContent = nb(prix, 3) + " €" + ecart(prix - c.prix, 3, " €");
 
         // Même formule que la vue totale : conso x prix x km, ramené au mois
         const mensuelReel = ((c.conso / 100) * c.prix * c.kmAn) / 12;
@@ -220,24 +258,31 @@ function calculer() {
 
 function calculerBut(gainMois) {
     const nom = butNom.value.trim();
-    const prix = parseFloat(butPrix.value.replace(",", "."));
+    const prix = lireNombre(butPrix.value);
 
     if (nom === "" || isNaN(prix) || prix <= 0) {
-        butResultat.textContent = "Donne un nom et un prix à ce que tu veux financer.";
+        butResultat.textContent = "Donne un nom et un prix à ce que tu veux financer, juste au-dessus.";
+        return;
+    }
+
+    // Le nom est tapé librement : entre guillemets, la phrase reste correcte
+    const but = "« " + nom + " »";
+
+    if (gainMois <= -1) {
+        butResultat.textContent = "Avec ces changements, tu dépenserais plus qu'aujourd'hui : impossible de financer " + but + " comme ça.";
         return;
     }
 
     if (gainMois < 1) {
-        butResultat.textContent = "Bouge les curseurs au-dessus pour voir en combien de temps tu finances " + nom + ".";
+        butResultat.textContent = "Tu n'économises rien pour l'instant. Bouge un curseur ou décoche un abonnement pour voir en combien de temps tu finances " + but + ".";
         return;
     }
 
     const mois = Math.ceil(prix / gainMois);
     let duree = mois + " mois";
-    if (mois === 1) { duree = "1 mois"; }
     if (mois >= 24) { duree = nb(mois / 12, 1) + " ans"; }
 
-    butResultat.textContent = "Tu finances " + nom + " en " + duree + ", si tu tiens ces changements.";
+    butResultat.textContent = "Tu finances " + but + " en " + duree + ", si tu tiens ces changements.";
 }
 
 
@@ -248,9 +293,19 @@ export function initSimulateur() {
     butNom.value = but.nom;
     butPrix.value = but.prix;
 
-    curseurConso.addEventListener("input", calculer);
-    curseurKm.addEventListener("input", calculer);
-    curseurPrix.addEventListener("input", calculer);
+    // Curseur bougé : on recalcule et on met le champ à jour
+    const curseurs = [curseurConso, curseurKm, curseurPrix];
+    for (let i = 0; i < curseurs.length; i++) {
+        curseurs[i].addEventListener("input", function () {
+            calculer();
+            remplirSaisies();
+        });
+    }
+
+    // Valeur tapée : appliquée quand on valide (Entrée) ou qu'on quitte le champ
+    saisieConso.addEventListener("change", function () { appliquerSaisie(saisieConso, curseurConso); });
+    saisieKm.addEventListener("change", function () { appliquerSaisie(saisieKm, curseurKm); });
+    saisiePrix.addEventListener("change", function () { appliquerSaisie(saisiePrix, curseurPrix); });
 
     listeAbos.addEventListener("change", function (event) {
         const id = Number(event.target.dataset.id);

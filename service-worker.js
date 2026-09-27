@@ -1,4 +1,4 @@
-const CACHE = "kynq-v21";
+const CACHE = "kynq-v22";
 
 const FICHIERS = [
   "./index.html",

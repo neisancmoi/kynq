@@ -124,10 +124,10 @@ export function afficherEncartVoiture(mensuel, coutParKm, aDesFrais) {
 
     let detail = ent(mensuel * 12) + " € par an.";
     if (coutParKm !== null) {
-        detail = detail + " Soit " + nb(coutParKm, 3) + " € du kilomètre, tout compris.";
+        if (aDesFrais) {
+            detail = detail + " Soit " + nb(coutParKm, 3) + " € du kilomètre, carburant et frais compris.";
+        } else {
+            detail = detail + " Soit " + nb(coutParKm, 3) + " € du kilomètre en carburant.";
+        }
     }
-    if (!aDesFrais) {
-        detail = detail + " Ajoute ton assurance et ton entretien pour un chiffre complet.";
-    }
-    encartDetail.textContent = detail;
 }
