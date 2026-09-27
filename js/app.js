@@ -424,7 +424,7 @@ function afficher() {
         inflation: inflation,
         anomalies: nombreAnomalies(pleins),
         totalDepense: totalDepense(pleins),
-        totalLitres: totalLitres(pleins),
+        totalLitres: totalLitres(pleins) - premier.litres,
         kmTotal: dernier.km - premier.km,
         coutKm: coutKm
     });
@@ -575,12 +575,16 @@ champImport.addEventListener("change", function (event) {
 
                     if (donnees.config) {
                         config = donnees.config;
-                        if (config.inflation === undefined) { config.inflation = 0; }
+                        if (config.inflationCarburant === undefined) {
+                            config.inflationCarburant = config.inflation !== undefined ? config.inflation : 0;
+                        }
+                        if (config.inflationAbonnements === undefined) { config.inflationAbonnements = 0; }
                         if (config.carburant === undefined) { config.carburant = "sp95"; }
                         champCarburant.value = config.carburant;
                         sauvegarder("config", config);
                         champObjectif.value = config.objectifConso;
-                        champInflation.value = config.inflation;
+                        champInflation.value = config.inflationCarburant;
+                        aboChampInflation.value = config.inflationAbonnements;
                     }
 
                     afficher();
@@ -855,14 +859,14 @@ function afficherTrajet() {
 
     const conso = segment.conso;
     const prix = prixMoyenFiable(pleins);
-    const base = "À " + fr(conso, 2) + " L/100 et " + fr(prix, 2) + " €/L.";
+    const base = "À " + fr(conso, 2) + " L/100 et " + fr(prix, 3) + " €/L.";
 
     // Un Français tape 42,5 : on remplace la virgule avant de convertir
     const distance = parseFloat(trajetDistance.value.replace(",", "."));
 
     if (isNaN(distance) || distance <= 0) {
         trajetResultat.textContent = "";
-        trajetBase.textContent = base;
+        trajetBase.textContent = "Tape une distance pour voir ce que coûte le trajet. " + base;
         return;
     }
 
@@ -939,7 +943,7 @@ async function chargerStations(obtenirPosition) {
         const position = await obtenirPosition();
         const rayon = Number(stationsRayon.value);
         const stations = await chercherStations(position, rayon, config.carburant);
-        afficherStations(preparerStations(stations, referenceStations()), rayon);
+        afficherStations(preparerStations(stations, referenceStations()), rayon, stations.length, config.carburant);
     } catch (erreur) {
         afficherStationsErreur(erreur.message);
     }

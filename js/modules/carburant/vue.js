@@ -130,7 +130,7 @@ export function afficherResultats(donnees) {
 
     elemBaseCalcul.textContent =
         "Basé sur " + ent(donnees.kmAn) + " km/an (estimés sur " +
-        donnees.joursSuivis + " jours de suivi) et un prix moyen de " + nb(donnees.prixMoyen, 2) + " €/L.";
+        donnees.joursSuivis + " jours de suivi) et un prix moyen de " + nb(donnees.prixMoyen, 3) + " €/L.";
 
     if (donnees.inflation > 0) {
         elemNoteHypothese.textContent = "Projection avec une hausse du carburant de " + nb(donnees.inflation, 1) + " % par an.";
@@ -150,8 +150,7 @@ export function afficherResultats(donnees) {
     }
 
     elemTotalDepense.textContent = nb(donnees.totalDepense, 2) + " €";
-    elemTotalDetail.textContent = nb(donnees.totalLitres, 1) + " L sur " + ent(donnees.kmTotal) + " km parcourus";
-    elemCoutKm.textContent = nb(donnees.coutKm, 3) + " €/km";
+    elemTotalDetail.textContent = nb(donnees.totalLitres, 1) + " L consommés sur " + ent(donnees.kmTotal) + " km, hors premier plein"; elemCoutKm.textContent = nb(donnees.coutKm, 3) + " €/km";
 
     afficherTendance(donnees.variation);
 }
@@ -519,6 +518,13 @@ const MESSAGES_ERREUR = {
     "api-adresse": "Le service des adresses ne répond pas. Réessaie dans un moment."
 };
 
+// Les adresses viennent d'une API externe : on neutralise tout HTML éventuel
+function echapper(texte) {
+    const div = document.createElement("div");
+    div.textContent = texte || "";
+    return div.innerHTML;
+}
+
 export function afficherStationsChargement() {
     stationsListe.innerHTML = "";
     stationsMessage.textContent = "Recherche des stations...";
@@ -530,7 +536,7 @@ export function afficherStationsErreur(code) {
         "Impossible de récupérer les prix. Vérifie ta connexion et réessaie.";
 }
 
-export function afficherStations(stations, rayon) {
+export function afficherStations(stations, rayon, total, carburantChoisi) {
     stationsListe.innerHTML = "";
 
     if (stations.length === 0) {
@@ -539,35 +545,54 @@ export function afficherStations(stations, rayon) {
         return;
     }
 
-    stationsMessage.textContent = (stations.length === 1 ? "Une station" : stations.length + " stations") +
-        ", de la moins chère à la plus chère. Distances à vol d'oiseau.";
+    // On dit clairement combien il y en a en tout, pas seulement combien on en montre
+    let texte;
+    if (total > stations.length) {
+        texte = "Les " + stations.length + " moins chères sur " + total +
+            " stations trouvées dans un rayon de " + rayon + " km.";
+    } else if (total === 1) {
+        texte = "Une station trouvée dans un rayon de " + rayon + " km.";
+    } else {
+        texte = total + " stations trouvées dans un rayon de " + rayon + " km, de la moins chère à la plus chère.";
+    }
+    texte = texte + " Distances à vol d'oiseau.";
+
+    // SP95 choisi mais prix E10 affichés : on explique pourquoi
+    if (carburantChoisi === "sp95") {
+        const nbE10 = stations.filter(function (s) { return s.carburant === "e10"; }).length;
+        if (nbE10 === stations.length) {
+            texte = texte + " Aucune de ces stations ne vend de SP95 pur : ce sont les prix du SP95-E10, qui convient à la plupart des voitures essence.";
+        } else if (nbE10 > 0) {
+            texte = texte + " Certaines stations ne vendent plus que du SP95-E10 : c'est alors son prix qui est affiché. Il convient à la plupart des voitures essence.";
+        }
+    }
+    stationsMessage.textContent = texte;
 
     for (let i = 0; i < stations.length; i++) {
         const s = stations[i];
         const ligne = document.createElement("li");
 
-        // Comparaison avec tes propres pleins, pas dans l'absolu
+        // Comparaison avec tes propres pleins, traduite en euros concrets
         let classePrix = "prix-neutre";
         let comparaison = "Ajoute des pleins pour comparer ce prix à ta moyenne.";
 
         if (s.ecartLitre !== null) {
-            if (s.ecartLitre < 0) {
+            const ecart = nb(Math.abs(s.ecartLitre), 3);
+            const surPlein = nb(Math.abs(s.gainPlein), 2) + " € sur un plein de " + ent(s.litresPlein) + " L";
+            const surAn = s.gainAn !== null ? ", et environ " + ent(Math.abs(s.gainAn)) + " € sur un an à ton rythme" : "";
+
+            if (Math.abs(s.ecartLitre) < 0.0005) {
+                comparaison = "Pile à ta moyenne.";
+            } else if (s.ecartLitre < 0) {
                 classePrix = "prix-bas";
-                comparaison = nb(Math.abs(s.ecartLitre), 3) + " € de moins que ta moyenne par litre. Soit " +
-                    nb(s.gainPlein, 2) + " € sur un plein de " + ent(s.litresPlein) + " L";
-                if (s.gainAn !== null) {
-                    comparaison = comparaison + ", et " + ent(s.gainAn) + " € sur un an à ton rythme";
-                }
-                comparaison = comparaison + ".";
+                comparaison = ecart + " € de moins que ta moyenne par litre. Soit " + surPlein + " d'économie" + surAn + ".";
                 if (s.coutAllerRetour !== null && s.coutAllerRetour >= s.gainPlein) {
                     comparaison = comparaison + " Mais l'aller-retour te coûte environ " +
                         nb(s.coutAllerRetour, 2) + " €, ça ne vaut le coup que si tu passes devant.";
                 }
-            } else if (s.ecartLitre > 0) {
-                classePrix = "prix-cher";
-                comparaison = nb(s.ecartLitre, 3) + " € de plus que ta moyenne par litre.";
             } else {
-                comparaison = "Pile à ta moyenne.";
+                classePrix = "prix-cher";
+                comparaison = ecart + " € de plus que ta moyenne par litre. Soit " + surPlein + " de plus" + surAn + ".";
             }
         }
 
@@ -581,16 +606,19 @@ export function afficherStations(stations, rayon) {
             else { texteMaj = "Prix mis à jour il y a " + jours + " jours"; }
 
             if (jours > 3) {
-                alerteMaj = "<span class='histo-anomalie'>⚠ Prix ancien, il a peut-être changé depuis.</span>";
+                alerteMaj = "<p class='station-alerte'>⚠ Prix ancien, il a peut-être changé depuis.</p>";
             }
         }
 
         ligne.innerHTML =
-            "<span class='histo-date'>" + s.adresse + ", " + s.ville + "</span>" +
-            "<span class='histo-conso " + classePrix + "'>" + nb(s.prix, 3) + " €/L</span>" +
-            "<span class='histo-detail'>À " + nb(s.distance, 1) + " km, " +
-            NOMS_CARBURANTS[s.carburant] + ". " + texteMaj + ".</span>" +
-            "<span class='histo-note'>" + comparaison + "</span>" +
+            "<div class='station-haut'>" +
+            "<span class='station-adresse'>" + echapper(s.adresse) + "</span>" +
+            "<span class='station-prix " + classePrix + "'>" + nb(s.prix, 3) + " €/L</span>" +
+            "</div>" +
+            "<p class='station-infos'>" + echapper(s.ville) + ", à " + nb(s.distance, 1) + " km, " +
+            NOMS_CARBURANTS[s.carburant] + "</p>" +
+            "<p class='station-maj'>" + texteMaj + ".</p>" +
+            "<p class='station-comparaison'>" + comparaison + "</p>" +
             alerteMaj;
 
         stationsListe.appendChild(ligne);

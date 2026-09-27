@@ -7,6 +7,7 @@
   <title>Kynq</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icone-192.png">
   <meta name="theme-color" content="#12141a">
 </head>
 
@@ -153,7 +154,7 @@
 
           <div id="trajet-outil" hidden>
             <label for="trajet-distance">Distance (km)</label>
-            <input type="text" id="trajet-distance" inputmode="decimal" placeholder="42,5">
+            <input type="text" id="trajet-distance" inputmode="decimal" placeholder="Ex : 42,5">
 
             <label class="case-a-cocher">
               <input type="checkbox" id="trajet-ar">
@@ -163,6 +164,31 @@
             <p id="trajet-resultat"></p>
             <p id="trajet-base"></p>
           </div>
+        </section>
+        <section id="frais-section">
+          <h2 id="frais-titre-saisie">Frais de la voiture</h2>
+          <p class="frais-aide">Assurance, contrôle technique, entretien. Pour l'entretien, mets un budget annuel
+            estimé : vidange, pneus et plaquettes tombent quand ils tombent.</p>
+
+          <label for="frais-nom">Nom</label>
+          <input type="text" id="frais-nom" placeholder="Assurance, entretien...">
+
+          <label for="frais-montant">Montant (€)</label>
+          <input type="text" id="frais-montant" inputmode="decimal" placeholder="540">
+
+          <label for="frais-periodicite">Périodicité</label>
+          <select id="frais-periodicite">
+            <option value="annuel">Par an</option>
+            <option value="mensuel">Par mois</option>
+            <option value="trimestriel">Par trimestre</option>
+            <option value="biennal">Tous les 2 ans</option>
+          </select>
+
+          <button id="frais-btn-enregistrer">Ajouter</button>
+          <button id="frais-btn-annuler" class="btn-secondaire" hidden>Annuler la modification</button>
+
+          <ul id="frais-liste"></ul>
+          <p id="frais-vide">Tes frais apparaîtront ici.</p>
         </section>
         <section id="stations-section">
           <h2>Stations autour de toi</h2>
@@ -222,31 +248,7 @@
           <ul id="liste-pleins"></ul>
           <p id="historique-vide">Tes pleins apparaîtront ici.</p>
         </section>
-        <section id="frais-section">
-          <h2 id="frais-titre-saisie">Frais de la voiture</h2>
-          <p class="frais-aide">Assurance, contrôle technique, entretien. Pour l'entretien, mets un budget annuel
-            estimé : vidange, pneus et plaquettes tombent quand ils tombent.</p>
 
-          <label for="frais-nom">Nom</label>
-          <input type="text" id="frais-nom" placeholder="Assurance, entretien...">
-
-          <label for="frais-montant">Montant (€)</label>
-          <input type="text" id="frais-montant" inputmode="decimal" placeholder="540">
-
-          <label for="frais-periodicite">Périodicité</label>
-          <select id="frais-periodicite">
-            <option value="annuel">Par an</option>
-            <option value="mensuel">Par mois</option>
-            <option value="trimestriel">Par trimestre</option>
-            <option value="biennal">Tous les 2 ans</option>
-          </select>
-
-          <button id="frais-btn-enregistrer">Ajouter</button>
-          <button id="frais-btn-annuler" class="btn-secondaire" hidden>Annuler la modification</button>
-
-          <ul id="frais-liste"></ul>
-          <p id="frais-vide">Tes frais apparaîtront ici.</p>
-        </section>
 
       </div>
 
@@ -319,7 +321,7 @@
             <option value="e85">E85 (Superéthanol)</option>
             <option value="gplc">GPL</option>
           </select>
-          <p>Sert à vérifier que les prix saisis sont cohérents, et bientôt à chercher les stations.</p>
+          <p>Sert à vérifier que les prix saisis sont cohérents, et à chercher les prix des stations.</p>
 
           <label for="objectif">Objectif de consommation (L/100km)</label>
           <input type="number" id="objectif" inputmode="decimal" step="0.1">

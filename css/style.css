@@ -1089,3 +1089,65 @@ select:focus {
 #total-encart-detail {
   line-height: 1.5;
 }
+
+/* ---------- Stations : une carte par station ---------- */
+#stations-liste {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+#stations-liste li {
+  border: 1px solid #2a2e3a;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.station-haut {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.station-adresse {
+  font-weight: 600;
+}
+
+.station-prix {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.station-infos,
+.station-maj,
+.station-comparaison,
+.station-alerte {
+  margin: 4px 0 0;
+  font-size: 0.9em;
+}
+
+.station-infos,
+.station-maj {
+  color: #8b90a0;
+}
+
+.station-alerte {
+  color: #ff6b6b;
+}
+
+#stations-message {
+  margin-top: 12px;
+}
+
+label[for="stations-cp"] {
+  display: block;
+  margin-top: 16px;
+}
+
+/* Crayon et poubelle assez grands pour un doigt */
+.btn-icone {
+  min-width: 44px;
+  min-height: 44px;
+}
