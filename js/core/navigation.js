@@ -93,7 +93,9 @@ function initSwipe() {
         // On décide une seule fois si le geste est horizontal ou vertical
         if (horizontal === null) {
             if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) { return; }
-            horizontal = Math.abs(deltaX) > Math.abs(deltaY);
+            // Horizontal seulement si le geste est nettement plus large que haut :
+            // un scroll un peu en biais avec le pouce ne change plus d'onglet
+            horizontal = Math.abs(deltaX) > Math.abs(deltaY) * 1.5;
             if (!horizontal) { actif = false; return; }
         }
 
