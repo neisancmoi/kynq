@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Kynq</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="manifest" href="manifest.json">
@@ -11,233 +11,523 @@
   <meta name="theme-color" content="#12141a">
 </head>
 
-<body>
+<body data-ecran="total">
 
   <main>
     <div id="piste">
 
+      <!-- ============ ÉCRAN TOTAL ============ -->
       <div id="ecran-total" class="ecran">
-        <div id="rappel-plein" class="rappel-plein" hidden>
-          <p id="rappel-plein-texte"></p>
-          <div class="rappel-plein-actions">
-            <button id="rappel-plein-ajouter">Ajouter un plein</button>
-            <button id="rappel-plein-masquer" class="btn-secondaire">Masquer</button>
+        <div class="ecran-contenu">
+
+          <header class="ecran-entete">
+            <p class="marque">Kynq</p>
+            <h1>Tes dépenses</h1>
+          </header>
+
+          <div id="rappel-plein" class="rappel-plein" hidden>
+            <p id="rappel-plein-texte"></p>
+            <div class="rappel-plein-actions">
+              <button id="rappel-plein-ajouter">Ajouter un plein</button>
+              <button id="rappel-plein-masquer" class="btn-secondaire">Masquer</button>
+            </div>
           </div>
+
+          <div class="segments" data-ecran="total" role="tablist">
+            <button data-panneau="apercu" role="tab">Aperçu</button>
+            <button data-panneau="simuler" role="tab">Simuler</button>
+          </div>
+
+          <div class="panneau" data-ecran="total" data-panneau="apercu">
+            <section id="total-projection" class="hero">
+              <div id="total-accueil" hidden>
+                <p class="accueil-phrase">Kynq additionne tes dépenses récurrentes et te montre ce qu'elles
+                  représentent sur cinq ans.</p>
+                <p class="accueil-etapes">Touche le bouton + pour ajouter tes pleins et tes abonnements.</p>
+              </div>
+
+              <div id="total-resultats" hidden>
+                <p class="surtitre">Sur les 5 prochaines années</p>
+                <p id="total-5ans" class="chiffre-hero"></p>
+                <p id="total-phrase" class="hero-phrase"></p>
+                <p id="total-note-anomalies" class="note-alerte"></p>
+
+                <div class="tuiles">
+                  <div class="tuile">
+                    <p class="tuile-label">Chaque mois</p>
+                    <p id="total-mensuel" class="tuile-valeur"></p>
+                    <p id="total-annuel" class="tuile-sous"></p>
+                  </div>
+                  <div id="total-encart" class="tuile" hidden>
+                    <p id="total-encart-titre" class="tuile-label"></p>
+                    <p id="total-encart-valeur" class="tuile-valeur"></p>
+                    <p id="total-encart-detail" class="tuile-sous"></p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="total-detail-section">
+              <h2>Le détail</h2>
+              <ul id="total-liste"></ul>
+              <p id="total-detail-vide" class="vide">Le détail de tes dépenses apparaîtra ici.</p>
+            </section>
+          </div>
+
+          <div class="panneau" data-ecran="total" data-panneau="simuler" hidden>
+            <section id="but-section">
+              <h2>Ce que tu veux financer</h2>
+              <div class="champs-duo">
+                <div>
+                  <label for="but-nom">Ton but</label>
+                  <input type="text" id="but-nom" placeholder="Un voyage, un vélo...">
+                </div>
+                <div>
+                  <label for="but-prix">Son prix (€)</label>
+                  <input type="text" id="but-prix" inputmode="decimal" placeholder="800">
+                </div>
+              </div>
+            </section>
+
+            <section id="simu-section">
+              <h2>Et si tu changeais quelque chose</h2>
+              <p id="simu-vide" class="vide">Ajoute des pleins ou des abonnements pour simuler un changement.</p>
+
+              <div id="simu" hidden>
+                <div class="simu-bilan">
+                  <p id="simu-resultat"></p>
+                  <p id="simu-detail"></p>
+                  <p id="but-resultat"></p>
+                </div>
+
+                <div id="simu-carburant">
+                  <p class="simu-label">Consommation <span id="simu-conso-val"></span></p>
+                  <div class="simu-ligne">
+                    <input type="range" id="simu-conso" step="any" aria-label="Consommation">
+                    <input type="text" id="simu-conso-saisie" class="simu-saisie" inputmode="decimal"
+                      aria-label="Consommation en litres aux 100 km">
+                  </div>
+
+                  <p class="simu-label">Kilomètres par an <span id="simu-km-val"></span></p>
+                  <div class="simu-ligne">
+                    <input type="range" id="simu-km" step="any" aria-label="Kilomètres par an">
+                    <input type="text" id="simu-km-saisie" class="simu-saisie" inputmode="numeric"
+                      aria-label="Kilomètres par an">
+                  </div>
+
+                  <p class="simu-label">Prix du litre <span id="simu-prix-val"></span></p>
+                  <div class="simu-ligne">
+                    <input type="range" id="simu-prix" step="any" aria-label="Prix du litre">
+                    <input type="text" id="simu-prix-saisie" class="simu-saisie" inputmode="decimal"
+                      aria-label="Prix du litre en euros">
+                  </div>
+                </div>
+
+                <div id="simu-abonnements">
+                  <p class="simu-label">Abonnements gardés</p>
+                  <ul id="simu-abos"></ul>
+                </div>
+
+                <button id="simu-reset" class="btn-secondaire">Revenir à ta situation réelle</button>
+              </div>
+            </section>
+          </div>
+
         </div>
-
-        <section id="total-projection">
-          <h1>Kynq</h1>
-
-          <div id="total-accueil" hidden>
-            <p class="accueil-phrase">Kynq additionne tes dépenses récurrentes et te montre ce qu'elles représentent sur
-              cinq ans.</p>
-            <p class="accueil-etapes">Ajoute tes pleins et tes abonnements pour voir ton total.</p>
-          </div>
-
-          <div id="total-resultats" hidden>
-            <p>Tes dépenses récurrentes</p>
-            <p id="total-mensuel"></p>
-            <p class="equiv" id="total-annuel"></p>
-
-            <p class="bloc-projection">Sur les 5 prochaines années</p>
-            <p id="total-5ans"></p>
-            <p id="total-phrase"></p>
-            <p id="total-note-anomalies"></p>
-            <div id="total-encart" hidden>
-              <p class="bloc-projection" id="total-encart-titre"></p>
-              <p id="total-encart-valeur"></p>
-              <p class="equiv" id="total-encart-detail"></p>
-            </div>
-          </div>
-        </section>
-
-        <section id="total-detail-section">
-          <h2>Le détail</h2>
-          <ul id="total-liste"></ul>
-          <p id="total-detail-vide">Le détail de tes dépenses apparaîtra ici.</p>
-        </section>
-        <section id="but-section">
-          <h2>Ce que tu veux financer</h2>
-          <label for="but-nom">Ton but</label>
-          <input type="text" id="but-nom" placeholder="Un voyage, un vélo...">
-          <label for="but-prix">Son prix (€)</label>
-          <input type="text" id="but-prix" inputmode="decimal" placeholder="800">
-        </section>
-
-        <section id="simu-section">
-          <h2>Et si tu changeais quelque chose</h2>
-          <p id="simu-vide">Ajoute des pleins ou des abonnements pour simuler un changement.</p>
-
-          <div id="simu" hidden>
-            <div id="simu-carburant">
-              <p class="simu-label">Consommation <span id="simu-conso-val"></span></p>
-              <div class="simu-ligne">
-                <input type="range" id="simu-conso" step="any">
-                <input type="text" id="simu-conso-saisie" class="simu-saisie" inputmode="decimal"
-                  aria-label="Consommation en litres aux 100 km">
-              </div>
-
-              <p class="simu-label">Kilomètres par an <span id="simu-km-val"></span></p>
-              <div class="simu-ligne">
-                <input type="range" id="simu-km" step="any">
-                <input type="text" id="simu-km-saisie" class="simu-saisie" inputmode="numeric"
-                  aria-label="Kilomètres par an">
-              </div>
-
-              <p class="simu-label">Prix du litre <span id="simu-prix-val"></span></p>
-              <div class="simu-ligne">
-                <input type="range" id="simu-prix" step="any">
-                <input type="text" id="simu-prix-saisie" class="simu-saisie" inputmode="decimal"
-                  aria-label="Prix du litre en euros">
-              </div>
-            </div>
-
-            <div id="simu-abonnements">
-              <p class="simu-label">Abonnements gardés</p>
-              <ul id="simu-abos"></ul>
-            </div>
-
-            <p id="simu-resultat"></p>
-            <p id="simu-detail"></p>
-            <p id="but-resultat"></p>
-            <button id="simu-reset" class="btn-secondaire">Revenir à ta situation réelle</button>
-          </div>
-        </section>
-
       </div>
 
+      <!-- ============ ÉCRAN VOITURE ============ -->
       <div id="ecran-carburant" class="ecran">
+        <div class="ecran-contenu">
 
-        <section id="ecran-projection">
-          <h1>Kynq</h1>
+          <header class="ecran-entete">
+            <p class="marque">Kynq</p>
+            <h1>Voiture</h1>
+          </header>
 
-          <div id="accueil" hidden>
-            <p class="accueil-phrase">Kynq te montre ce que ta conduite te coûtera sur les 5 prochaines années, et
-              combien tu récupères en consommant moins.</p>
-            <div class="accueil-exemple">
-              <span class="exemple-label">Par exemple</span>
-              <p class="exemple-texte">Passer de 7,5 à 6,5 L/100 sur 15 000 km par an, ça fait <strong>1 320 €
-                  récupérés</strong> sur 5 ans. Soit 22 € par mois.</p>
-              <p class="exemple-note">Calculé sur un carburant à 1,75 € le litre.</p>
+          <div class="segments" data-ecran="carburant" role="tablist">
+            <button data-panneau="apercu" role="tab">Aperçu</button>
+            <button data-panneau="pleins" role="tab">Pleins</button>
+            <button data-panneau="stations" role="tab">Stations</button>
+            <button data-panneau="frais" role="tab">Frais</button>
+          </div>
+
+          <!-- Aperçu -->
+          <div class="panneau" data-ecran="carburant" data-panneau="apercu">
+            <section id="ecran-projection" class="hero">
+              <div id="accueil" hidden>
+                <p class="accueil-phrase">Kynq te montre ce que ta conduite te coûtera sur les 5 prochaines années,
+                  et combien tu récupères en consommant moins.</p>
+                <div class="accueil-exemple">
+                  <span class="exemple-label">Par exemple</span>
+                  <p class="exemple-texte">Passer de 7,5 à 6,5 L/100 sur 15 000 km par an, ça fait <strong>1 320 €
+                      récupérés</strong> sur 5 ans. Soit 22 € par mois.</p>
+                  <p class="exemple-note">Calculé sur un carburant à 1,75 € le litre.</p>
+                </div>
+                <p class="accueil-etapes">Touche le bouton + pour noter ton prochain plein. À partir du deuxième
+                  plein complet, Kynq calcule ta vraie consommation et ta projection.</p>
+              </div>
+
+              <p id="message-attente"></p>
+
+              <div id="resultats" hidden>
+                <p id="label-ecart" class="surtitre">Écart récupérable</p>
+                <p id="ecart" class="chiffre-hero"></p>
+                <p id="equiv-ecart" class="hero-sous"></p>
+                <p id="phrase-ecart" class="hero-phrase"></p>
+
+                <div class="tuile tuile-conso">
+                  <div>
+                    <p class="tuile-label">Ta consommation</p>
+                    <p id="conso-reelle" class="tuile-valeur grande"></p>
+                  </div>
+                  <p id="tendance"></p>
+                </div>
+
+                <p class="intertitre">Sur les 5 prochaines années</p>
+                <div class="tuiles deux">
+                  <div class="tuile">
+                    <p class="tuile-label">Au rythme actuel</p>
+                    <p id="projection-actuelle" class="tuile-valeur"></p>
+                    <p id="equiv-actuelle" class="tuile-sous"></p>
+                  </div>
+                  <div class="tuile tuile-objectif">
+                    <p id="label-objectif" class="tuile-label">Si tu descends à <span id="objectif-inline"></span></p>
+                    <p id="projection-objectif" class="tuile-valeur"></p>
+                    <p id="equiv-objectif" class="tuile-sous"></p>
+                  </div>
+                </div>
+
+                <div class="bloc-potentiel">
+                  <p id="label-potentiel" class="tuile-label"></p>
+                  <p id="potentiel" class="tuile-valeur grande"></p>
+                  <p id="equiv-potentiel" class="tuile-sous"></p>
+                  <p id="phrase-potentiel" class="tuile-sous"></p>
+                </div>
+
+                <div class="notes">
+                  <p id="base-calcul"></p>
+                  <p id="note-hypothese"></p>
+                  <p id="note-anomalies" class="note-alerte"></p>
+                </div>
+
+                <p class="intertitre">Depuis le début</p>
+                <div class="tuiles deux">
+                  <div class="tuile">
+                    <p class="tuile-label">Total dépensé</p>
+                    <p id="total-depense" class="tuile-valeur"></p>
+                    <p id="total-detail" class="tuile-sous"></p>
+                  </div>
+                  <div class="tuile">
+                    <p class="tuile-label">Coût au kilomètre</p>
+                    <p id="cout-km" class="tuile-valeur"></p>
+                    <p class="tuile-sous">En carburant</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="ecran-trajet">
+              <h2>Coût d'un trajet</h2>
+              <p id="trajet-indispo" class="vide">Disponible après ton deuxième plein complet.</p>
+
+              <div id="trajet-outil" hidden>
+                <div class="ligne-champ">
+                  <div class="ligne-champ-principal">
+                    <label for="trajet-distance">Distance (km)</label>
+                    <input type="text" id="trajet-distance" inputmode="decimal" placeholder="Ex : 42,5">
+                  </div>
+                  <label class="interrupteur">
+                    <input type="checkbox" id="trajet-ar">
+                    <span>Aller-retour</span>
+                  </label>
+                </div>
+                <p id="trajet-resultat"></p>
+                <p id="trajet-base"></p>
+              </div>
+            </section>
+
+            <section id="ecran-graphique">
+              <h2>Évolution de ta consommation</h2>
+              <div id="zone-graphique"></div>
+              <p id="graphique-vide" class="vide">Il faut trois pleins complets pour tracer une courbe.</p>
+            </section>
+          </div>
+
+          <!-- Pleins -->
+          <div class="panneau" data-ecran="carburant" data-panneau="pleins" hidden>
+            <section id="ecran-historique">
+              <h2>Historique</h2>
+              <p class="legende-prix" id="legende-prix"></p>
+              <ul id="liste-pleins"></ul>
+              <p id="historique-vide" class="vide">Tes pleins apparaîtront ici.</p>
+              <button id="historique-tout" class="btn-secondaire" hidden></button>
+            </section>
+          </div>
+
+          <!-- Stations -->
+          <div class="panneau" data-ecran="carburant" data-panneau="stations" hidden>
+            <section id="stations-section">
+              <h2>Stations autour de toi</h2>
+              <p class="aide">Les prix officiels des stations, comparés à ce que tu payes d'habitude.</p>
+
+              <label for="stations-rayon">Rayon de recherche</label>
+              <select id="stations-rayon">
+                <option value="5">5 km</option>
+                <option value="10">10 km</option>
+                <option value="15" selected>15 km</option>
+                <option value="25">25 km</option>
+                <option value="40">40 km</option>
+              </select>
+
+              <button id="stations-btn-geoloc">Utiliser ma position</button>
+
+              <label for="stations-cp" class="label-espace">Ou ton code postal</label>
+              <div class="ligne-champ">
+                <input type="text" id="stations-cp" inputmode="numeric" maxlength="5" placeholder="03000">
+                <button id="stations-btn-cp" class="btn-secondaire btn-compact">Chercher</button>
+              </div>
+
+              <p id="stations-message"></p>
+              <ul id="stations-liste"></ul>
+            </section>
+          </div>
+
+          <!-- Frais -->
+          <div class="panneau" data-ecran="carburant" data-panneau="frais" hidden>
+            <section id="frais-liste-section">
+              <h2>Frais de la voiture</h2>
+              <p class="aide">Assurance, contrôle technique, entretien. Pour l'entretien, mets un budget annuel
+                estimé : vidange, pneus et plaquettes tombent quand ils tombent.</p>
+              <ul id="frais-liste" class="liste-lignes"></ul>
+              <p id="frais-vide" class="vide">Tes frais apparaîtront ici.</p>
+              <button class="btn-secondaire" data-ouvrir="frais">Ajouter un frais</button>
+            </section>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ============ ÉCRAN ABONNEMENTS ============ -->
+      <div id="ecran-abonnements" class="ecran">
+        <div class="ecran-contenu">
+
+          <header class="ecran-entete">
+            <p class="marque">Kynq</p>
+            <h1>Abonnements</h1>
+          </header>
+
+          <section id="abo-projection" class="hero">
+            <div id="abo-accueil" hidden>
+              <p class="accueil-phrase">Tes abonnements passent inaperçus chaque mois. Additionnés sur cinq ans, ils
+                pèsent plus que tu ne crois.</p>
+              <div class="accueil-exemple">
+                <span class="exemple-label">Par exemple</span>
+                <p class="exemple-texte">Trois abonnements à 10 € par mois, ça fait <strong>1 800 €</strong> sur cinq
+                  ans.</p>
+              </div>
+              <p class="accueil-etapes">Touche le bouton + pour ajouter tes abonnements et voir ce qu'ils te coûtent
+                vraiment.</p>
             </div>
-            <p class="accueil-etapes">Pour démarrer, note ton prochain plein. À partir du deuxième plein complet, Kynq
-              calcule ta vraie consommation et ta projection.</p>
-          </div>
 
-          <p id="message-attente"></p>
+            <div id="abo-resultats" hidden>
+              <p class="surtitre">Sur les 5 prochaines années</p>
+              <p id="abo-projection-5ans" class="chiffre-hero"></p>
+              <p id="abo-phrase" class="hero-phrase"></p>
 
-          <div id="resultats" hidden>
-            <p>Ta consommation</p>
-            <p id="conso-reelle"></p>
-            <p id="tendance"></p>
+              <div class="tuile tuile-ligne">
+                <div>
+                  <p class="tuile-label">Chaque mois</p>
+                  <p id="abo-mensuel" class="tuile-valeur"></p>
+                </div>
+                <p id="abo-annuel" class="tuile-sous"></p>
+              </div>
+            </div>
+          </section>
 
-            <p class="bloc-projection">Sur les 5 prochaines années</p>
-            <p>Au rythme actuel</p>
-            <p id="projection-actuelle"></p>
-            <p class="equiv" id="equiv-actuelle"></p>
+          <section id="abo-liste-section">
+            <h2>Mes abonnements</h2>
+            <ul id="abo-liste" class="liste-lignes"></ul>
+            <p id="abo-vide" class="vide">Tes abonnements apparaîtront ici.</p>
+            <button class="btn-secondaire" data-ouvrir="abonnement">Ajouter un abonnement</button>
+          </section>
 
-            <p id="label-objectif">Si tu descends à <span id="objectif-inline"></span></p>
-            <p id="projection-objectif"></p>
-            <p class="equiv" id="equiv-objectif"></p>
+        </div>
+      </div>
 
-            <p id="label-ecart">Écart récupérable</p>
-            <p id="ecart"></p>
-            <p class="equiv" id="equiv-ecart"></p>
-            <p id="phrase-ecart"></p>
-            <p class="bloc-scenario" id="label-potentiel"></p>
-            <p id="potentiel"></p>
-            <p class="equiv" id="equiv-potentiel"></p>
-            <p id="phrase-potentiel"></p>
-            <p id="base-calcul"></p>
-            <p id="note-hypothese"></p>
-            <p id="note-anomalies"></p>
+      <!-- ============ ÉCRAN RÉGLAGES ============ -->
+      <div id="ecran-reglages" class="ecran">
+        <div class="ecran-contenu">
 
-            <p class="bloc-projection">Depuis le début</p>
-            <p>Total dépensé</p>
-            <p id="total-depense"></p>
-            <p class="equiv" id="total-detail"></p>
-            <p>Coût au kilomètre</p>
-            <p id="cout-km"></p>
-          </div>
-        </section>
-        <section id="ecran-trajet">
-          <h2>Coût d'un trajet</h2>
-          <p id="trajet-indispo">Disponible après ton deuxième plein complet.</p>
+          <header class="ecran-entete">
+            <p class="marque">Kynq</p>
+            <h1>Réglages</h1>
+          </header>
 
-          <div id="trajet-outil" hidden>
-            <label for="trajet-distance">Distance (km)</label>
-            <input type="text" id="trajet-distance" inputmode="decimal" placeholder="Ex : 42,5">
+          <section id="reglages-carburant">
+            <h2 class="titre-module">Carburant</h2>
+            <label for="type-carburant">Ton carburant</label>
+            <select id="type-carburant">
+              <option value="sp95">SP95</option>
+              <option value="e10">SP95-E10</option>
+              <option value="sp98">SP98</option>
+              <option value="gazole">Gazole</option>
+              <option value="e85">E85 (Superéthanol)</option>
+              <option value="gplc">GPL</option>
+            </select>
+            <p class="aide">Sert à vérifier que les prix saisis sont cohérents, et à chercher les prix des stations.</p>
 
-            <label class="case-a-cocher">
-              <input type="checkbox" id="trajet-ar">
-              <span>Aller-retour</span>
-            </label>
+            <label for="objectif">Objectif de consommation (L/100km)</label>
+            <input type="number" id="objectif" inputmode="decimal" step="0.1">
+            <p id="conseil-objectif" class="aide">Vise un chiffre atteignable. Kynq te proposera mieux dès que tu auras
+              deux pleins.</p>
+            <button id="btn-objectif">Enregistrer l'objectif</button>
 
-            <p id="trajet-resultat"></p>
-            <p id="trajet-base"></p>
-          </div>
-        </section>
-        <section id="frais-section">
-          <h2 id="frais-titre-saisie">Frais de la voiture</h2>
-          <p class="frais-aide">Assurance, contrôle technique, entretien. Pour l'entretien, mets un budget annuel
-            estimé : vidange, pneus et plaquettes tombent quand ils tombent.</p>
+            <p class="sous-titre">Hausse du carburant</p>
+            <label for="inflation">Hausse annuelle du carburant (%)</label>
+            <input type="number" id="inflation" inputmode="decimal" step="0.5" min="0" max="20">
+            <p id="conseil-inflation" class="aide">Sur les vingt dernières années, le carburant a augmenté d'environ 2
+              à 3 % par an en moyenne selon les périodes, avec de fortes variations d'une année sur l'autre. Mets 0
+              pour projeter au prix actuel.</p>
+            <button id="btn-inflation">Enregistrer la hausse carburant</button>
+          </section>
 
-          <label for="frais-nom">Nom</label>
-          <input type="text" id="frais-nom" placeholder="Assurance, entretien...">
+          <section id="reglages-abonnements">
+            <h2 class="titre-module">Abonnements</h2>
+            <label for="abo-inflation">Hausse annuelle des abonnements (%)</label>
+            <input type="number" id="abo-inflation" inputmode="decimal" step="0.5" min="0" max="20">
+            <p class="aide">Les abonnements augmentent souvent de 2 à 5 % par an. Mets 0 pour projeter au tarif
+              actuel.</p>
+            <button id="abo-btn-inflation">Enregistrer la hausse abonnements</button>
+          </section>
 
-          <label for="frais-montant">Montant (€)</label>
-          <input type="text" id="frais-montant" inputmode="decimal" placeholder="540">
+          <section id="reglages-donnees">
+            <h2 class="titre-module">Mes données</h2>
+            <p id="rappel-export"></p>
+            <button id="btn-export">Exporter mes données</button>
+            <label for="fichier-import" class="btn-import">Importer un fichier</label>
+            <input type="file" id="fichier-import" accept=".json" hidden>
+          </section>
 
-          <label for="frais-periodicite">Périodicité</label>
-          <select id="frais-periodicite">
-            <option value="annuel">Par an</option>
-            <option value="mensuel">Par mois</option>
-            <option value="trimestriel">Par trimestre</option>
-            <option value="biennal">Tous les 2 ans</option>
-          </select>
+        </div>
+      </div>
 
-          <button id="frais-btn-enregistrer">Ajouter</button>
-          <button id="frais-btn-annuler" class="btn-secondaire" hidden>Annuler la modification</button>
+    </div>
+  </main>
 
-          <ul id="frais-liste"></ul>
-          <p id="frais-vide">Tes frais apparaîtront ici.</p>
-        </section>
-        <section id="stations-section">
-          <h2>Stations autour de toi</h2>
-          <p class="frais-aide">Les prix officiels des stations, comparés à ce que tu payes d'habitude.</p>
+  <!-- ============ BARRE D'ONGLETS ============ -->
+  <nav id="onglets">
+    <button class="onglet actif" data-ecran="total">
+      <span class="onglet-icone" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 20V11M10 20V5M16 20v-6M21 20H3" />
+        </svg>
+      </span>
+      <span class="onglet-texte">Total</span>
+    </button>
+    <button class="onglet" data-ecran="carburant">
+      <span class="onglet-icone" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M5 12l1.6-4.3A2 2 0 0 1 8.5 6.4h7a2 2 0 0 1 1.9 1.3L19 12M4 12h16v4.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V12zM6.5 17.5V19M17.5 17.5V19" />
+          <circle cx="8" cy="14.6" r=".6" />
+          <circle cx="16" cy="14.6" r=".6" />
+        </svg>
+      </span>
+      <span class="onglet-texte">Voiture</span>
+    </button>
+    <button class="onglet" data-ecran="abonnements">
+      <span class="onglet-icone" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M17 3l3 3-3 3" />
+          <path d="M4 11V9a3 3 0 0 1 3-3h13" />
+          <path d="M7 21l-3-3 3-3" />
+          <path d="M20 13v2a3 3 0 0 1-3 3H4" />
+        </svg>
+      </span>
+      <span class="onglet-texte">Abonnements</span>
+    </button>
+    <button class="onglet" data-ecran="reglages">
+      <span class="onglet-icone" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" />
+          <circle cx="15" cy="7" r="2" />
+          <circle cx="9" cy="12" r="2" />
+          <circle cx="17" cy="17" r="2" />
+        </svg>
+      </span>
+      <span class="onglet-texte">Réglages</span>
+    </button>
+  </nav>
 
-          <label for="stations-rayon">Rayon de recherche</label>
-          <select id="stations-rayon">
-            <option value="5">5 km</option>
-            <option value="10">10 km</option>
-            <option value="15" selected>15 km</option>
-            <option value="25">25 km</option>
-            <option value="40">40 km</option>
-          </select>
+  <!-- ============ BOUTON + ============ -->
+  <button id="fab" aria-label="Ajouter">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  </button>
 
-          <button id="stations-btn-geoloc">Utiliser ma position</button>
+  <!-- ============ FEUILLE D'AJOUT ============ -->
+  <div id="feuille" class="feuille" hidden>
+    <div class="feuille-fond" data-fermer></div>
+    <div class="feuille-boite" role="dialog" aria-modal="true" aria-label="Ajouter">
+      <div class="feuille-poignee" data-fermer></div>
+      <button class="feuille-fermer" data-fermer aria-label="Fermer">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
 
-          <label for="stations-cp">Ou ton code postal</label>
-          <input type="text" id="stations-cp" inputmode="numeric" maxlength="5" placeholder="03000">
-          <button id="stations-btn-cp" class="btn-secondaire">Chercher</button>
+      <div class="feuille-panneau" data-feuille="choix">
+        <h2 class="feuille-titre">Ajouter</h2>
+        <div class="choix-liste">
+          <button class="choix" data-ouvrir="plein">
+            <span class="choix-icone"><svg viewBox="0 0 24 24">
+                <path
+                  d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M14 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3M7 7h4" />
+              </svg></span>
+            <span class="choix-texte"><strong>Un plein</strong><small>Carburant, litres et kilométrage</small></span>
+          </button>
+          <button class="choix" data-ouvrir="abonnement">
+            <span class="choix-icone"><svg viewBox="0 0 24 24">
+                <path d="M17 3l3 3-3 3" />
+                <path d="M4 11V9a3 3 0 0 1 3-3h13" />
+                <path d="M7 21l-3-3 3-3" />
+                <path d="M20 13v2a3 3 0 0 1-3 3H4" />
+              </svg></span>
+            <span class="choix-texte"><strong>Un abonnement</strong><small>Streaming, sport, téléphone...</small></span>
+          </button>
+          <button class="choix" data-ouvrir="frais">
+            <span class="choix-icone"><svg viewBox="0 0 24 24">
+                <path
+                  d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.5 2.5l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.4 2.4-2.1-.4-.4-2.1 2.6-2.2z" />
+              </svg></span>
+            <span class="choix-texte"><strong>Un frais de voiture</strong><small>Assurance, entretien, contrôle
+                technique</small></span>
+          </button>
+        </div>
+      </div>
 
-          <p id="stations-message"></p>
-          <ul id="stations-liste"></ul>
-        </section>
+      <div class="feuille-panneau" data-feuille="plein" hidden>
         <section id="ecran-saisie">
-          <h2 id="titre-saisie">Nouveau plein</h2>
+          <h2 id="titre-saisie" class="feuille-titre">Nouveau plein</h2>
 
           <label for="date-plein">Date du plein</label>
           <input type="date" id="date-plein">
 
           <label for="km">Kilométrage au compteur</label>
-          <input type="number" id="km" inputmode="numeric">
+          <input type="number" id="km" inputmode="numeric" placeholder="Ex : 45520">
 
-          <label for="litres">Litres</label>
-          <input type="number" id="litres" inputmode="decimal" step="0.01">
-
-          <label for="montant">Montant payé (€)</label>
-          <input type="number" id="montant" inputmode="decimal" step="0.01">
+          <div class="champs-duo">
+            <div>
+              <label for="litres">Litres</label>
+              <input type="number" id="litres" inputmode="decimal" step="0.01" placeholder="Ex : 40,5">
+            </div>
+            <div>
+              <label for="montant">Montant payé (€)</label>
+              <input type="number" id="montant" inputmode="decimal" step="0.01" placeholder="Ex : 70,15">
+            </div>
+          </div>
 
           <label class="case-a-cocher">
             <input type="checkbox" id="plein-complet" checked>
@@ -247,150 +537,70 @@
           <button id="btn-enregistrer">Enregistrer</button>
           <button id="btn-annuler" class="btn-secondaire" hidden>Annuler la modification</button>
         </section>
-
-        <section id="ecran-graphique">
-          <h2>Évolution de ta consommation</h2>
-          <div id="zone-graphique"></div>
-          <p id="graphique-vide">Il faut trois pleins complets pour tracer une courbe.</p>
-        </section>
-
-        <section id="ecran-historique">
-          <h2>Historique</h2>
-          <p class="legende-prix" id="legende-prix"></p>
-          <ul id="liste-pleins"></ul>
-          <p id="historique-vide">Tes pleins apparaîtront ici.</p>
-        </section>
-
-
       </div>
 
-      <div id="ecran-abonnements" class="ecran">
-
-        <section id="abo-projection">
-          <h1>Abonnements</h1>
-
-          <div id="abo-accueil" hidden>
-            <p class="accueil-phrase">Tes abonnements passent inaperçus chaque mois. Additionnés sur cinq ans, ils
-              pèsent plus que tu ne crois.</p>
-            <div class="accueil-exemple">
-              <span class="exemple-label">Par exemple</span>
-              <p class="exemple-texte">Trois abonnements à 10 € par mois, ça fait <strong>1 800 €</strong> sur cinq ans.
-              </p>
-            </div>
-            <p class="accueil-etapes">Ajoute tes abonnements pour voir ce qu'ils te coûtent vraiment.</p>
-          </div>
-
-          <div id="abo-resultats" hidden>
-            <p>Total par mois</p>
-            <p id="abo-mensuel"></p>
-            <p class="equiv" id="abo-annuel"></p>
-
-            <p class="bloc-projection">Sur les 5 prochaines années</p>
-            <p id="abo-projection-5ans"></p>
-            <p id="abo-phrase"></p>
-          </div>
-        </section>
-
+      <div class="feuille-panneau" data-feuille="abonnement" hidden>
         <section id="abo-saisie">
-          <h2 id="abo-titre-saisie">Nouvel abonnement</h2>
+          <h2 id="abo-titre-saisie" class="feuille-titre">Nouvel abonnement</h2>
 
           <label for="abo-nom">Nom</label>
           <input type="text" id="abo-nom" placeholder="Spotify, salle de sport...">
 
-          <label for="abo-montant">Montant (€)</label>
-          <input type="number" id="abo-montant" inputmode="decimal" step="0.01">
-
-          <label for="abo-periodicite">Périodicité</label>
-          <select id="abo-periodicite">
-            <option value="mensuel">Par mois</option>
-            <option value="annuel">Par an</option>
-            <option value="trimestriel">Par trimestre</option>
-            <option value="hebdomadaire">Par semaine</option>
-          </select>
+          <div class="champs-duo">
+            <div>
+              <label for="abo-montant">Montant (€)</label>
+              <input type="number" id="abo-montant" inputmode="decimal" step="0.01" placeholder="11,99">
+            </div>
+            <div>
+              <label for="abo-periodicite">Périodicité</label>
+              <select id="abo-periodicite">
+                <option value="mensuel">Par mois</option>
+                <option value="annuel">Par an</option>
+                <option value="trimestriel">Par trimestre</option>
+                <option value="hebdomadaire">Par semaine</option>
+              </select>
+            </div>
+          </div>
 
           <button id="abo-btn-enregistrer">Ajouter</button>
           <button id="abo-btn-annuler" class="btn-secondaire" hidden>Annuler la modification</button>
         </section>
-
-        <section id="abo-liste-section">
-          <h2>Mes abonnements</h2>
-          <ul id="abo-liste"></ul>
-          <p id="abo-vide">Tes abonnements apparaîtront ici.</p>
-        </section>
-
       </div>
 
-      <div id="ecran-reglages" class="ecran">
+      <div class="feuille-panneau" data-feuille="frais" hidden>
+        <section id="frais-section">
+          <h2 id="frais-titre-saisie" class="feuille-titre">Frais de la voiture</h2>
 
-        <section id="reglages-carburant">
-          <h2 class="titre-module">Carburant</h2>
-          <label for="type-carburant">Ton carburant</label>
-          <select id="type-carburant">
-            <option value="sp95">SP95</option>
-            <option value="e10">SP95-E10</option>
-            <option value="sp98">SP98</option>
-            <option value="gazole">Gazole</option>
-            <option value="e85">E85 (Superéthanol)</option>
-            <option value="gplc">GPL</option>
-          </select>
-          <p>Sert à vérifier que les prix saisis sont cohérents, et à chercher les prix des stations.</p>
+          <label for="frais-nom">Nom</label>
+          <input type="text" id="frais-nom" placeholder="Assurance, entretien...">
 
-          <label for="objectif">Objectif de consommation (L/100km)</label>
-          <input type="number" id="objectif" inputmode="decimal" step="0.1">
-          <p id="conseil-objectif">Vise un chiffre atteignable. Kynq te proposera mieux dès que tu auras deux pleins.
-          </p>
-          <button id="btn-objectif">Enregistrer l'objectif</button>
+          <div class="champs-duo">
+            <div>
+              <label for="frais-montant">Montant (€)</label>
+              <input type="text" id="frais-montant" inputmode="decimal" placeholder="540">
+            </div>
+            <div>
+              <label for="frais-periodicite">Périodicité</label>
+              <select id="frais-periodicite">
+                <option value="annuel">Par an</option>
+                <option value="mensuel">Par mois</option>
+                <option value="trimestriel">Par trimestre</option>
+                <option value="biennal">Tous les 2 ans</option>
+              </select>
+            </div>
+          </div>
 
-          <p class="sous-titre">Hausse du carburant</p>
-          <label for="inflation">Hausse annuelle du carburant (%)</label>
-          <input type="number" id="inflation" inputmode="decimal" step="0.5" min="0" max="20">
-          <p id="conseil-inflation">Sur les vingt dernières années, le carburant a augmenté d'environ 2 à 3 % par an en
-            moyenne selon les périodes, avec de fortes variations d'une année sur l'autre. Mets 0 pour projeter au prix
-            actuel.</p>
-          <button id="btn-inflation">Enregistrer la hausse carburant</button>
+          <button id="frais-btn-enregistrer">Ajouter</button>
+          <button id="frais-btn-annuler" class="btn-secondaire" hidden>Annuler la modification</button>
         </section>
-
-        <section id="reglages-abonnements">
-          <h2 class="titre-module">Abonnements</h2>
-
-          <label for="abo-inflation">Hausse annuelle des abonnements (%)</label>
-          <input type="number" id="abo-inflation" inputmode="decimal" step="0.5" min="0" max="20">
-          <p>Les abonnements augmentent souvent de 2 à 5 % par an. Mets 0 pour projeter au tarif actuel.</p>
-          <button id="abo-btn-inflation">Enregistrer la hausse abonnements</button>
-        </section>
-
-        <section id="reglages-donnees">
-          <h2 class="titre-module">Mes données</h2>
-          <p id="rappel-export"></p>
-          <button id="btn-export">Exporter mes données</button>
-          <label for="fichier-import" class="btn-import">Importer un fichier</label>
-          <input type="file" id="fichier-import" accept=".json" hidden>
-        </section>
-
       </div>
-
     </div>
-  </main>
+  </div>
 
-  <nav id="onglets">
-    <button class="onglet actif" data-ecran="total">
-      <span class="onglet-icone">📊</span>
-      <span class="onglet-texte">Total</span>
-    </button>
-    <button class="onglet" data-ecran="carburant">
-      <span class="onglet-icone">🚗</span>
-      <span class="onglet-texte">Voiture</span>
-    </button>
-    <button class="onglet" data-ecran="abonnements">
-      <span class="onglet-icone">📋</span>
-      <span class="onglet-texte">Abonnements</span>
-    </button>
-    <button class="onglet" data-ecran="reglages">
-      <span class="onglet-icone">⚙</span>
-      <span class="onglet-texte">Réglages</span>
-    </button>
-  </nav>
+  <!-- Petit message de confirmation -->
+  <div id="toast" role="status" aria-live="polite" hidden></div>
 
+  <!-- ============ MODALE ============ -->
   <div id="modale" class="modale" hidden>
     <div class="modale-boite">
       <p class="modale-titre" id="modale-titre"></p>
@@ -403,6 +613,7 @@
   </div>
 
   <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/core/interface.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js");
