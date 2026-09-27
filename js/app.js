@@ -350,7 +350,18 @@ function enregistrerPlein(km, litres, montant, dateSaisie) {
 }
 
 
-
+// ---------- Coût réel au kilomètre ----------
+// Ce que tu as vraiment payé depuis le premier plein, divisé par les km parcourus.
+// Le premier plein est exclu : son carburant était déjà dans le réservoir au départ.
+// Un seul calcul pour toute l'app, sinon Voiture et Total affichent deux chiffres différents.
+function coutKmReel() {
+    if (pleins.length < 2) { return null; }
+    const premier = pleins[0];
+    const dernier = pleins[pleins.length - 1];
+    const km = dernier.km - premier.km;
+    if (km <= 0) { return null; }
+    return (totalDepense(pleins) - premier.montant) / km;
+}
 // ---------- Affichage principal du carburant ----------
 
 function afficher() {
@@ -423,10 +434,10 @@ function afficher() {
         prixMoyen: prixMoyen,
         inflation: inflation,
         anomalies: nombreAnomalies(pleins),
-        totalDepense: totalDepense(pleins),
+        totalDepense: totalDepense(pleins) - premier.montant,
         totalLitres: totalLitres(pleins) - premier.litres,
         kmTotal: dernier.km - premier.km,
-        coutKm: coutKm
+        coutKm: coutKmReel()
     });
 }
 // ---------- Réglages ----------
@@ -1036,8 +1047,10 @@ function afficherVueTotale() {
     // Presque personne ne connaît le sien.
     const kmAn = kmParAn(pleins);
     let coutCompletKm = null;
-    if (kmAn !== null && kmAn > 0 && (carburantMois > 0 || mensuelFrais > 0)) {
-        coutCompletKm = ((carburantMois + mensuelFrais) * 12) / kmAn;
+    const carburantKm = coutKmReel();
+    if (kmAn !== null && kmAn > 0 && carburantKm !== null) {
+        // Même coût carburant que l'onglet Voiture, plus les frais ramenés au kilomètre
+        coutCompletKm = carburantKm + (mensuelFrais * 12) / kmAn;
     }
 
     afficherEncartVoiture(carburantMois + mensuelFrais, coutCompletKm, mensuelFrais > 0);

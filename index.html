@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icone-192.png">
+  <link rel="apple-touch-icon" href="icone-192.png">
   <meta name="theme-color" content="#12141a">
 </head>
 
@@ -22,7 +23,7 @@
 
           <header class="ecran-entete">
             <p class="marque">Kynq</p>
-            <h1>Tes dépenses</h1>
+            <h1>Total</h1>
           </header>
 
           <div id="rappel-plein" class="rappel-plein" hidden>
@@ -221,7 +222,7 @@
                   <div class="tuile">
                     <p class="tuile-label">Coût au kilomètre</p>
                     <p id="cout-km" class="tuile-valeur"></p>
-                    <p class="tuile-sous">En carburant</p>
+                    <p class="tuile-sous">Ce que tu as payé, divisé par les km parcourus</p>
                   </div>
                 </div>
               </div>
@@ -516,7 +517,7 @@
           <input type="date" id="date-plein">
 
           <label for="km">Kilométrage au compteur</label>
-          <input type="number" id="km" inputmode="numeric" placeholder="Ex : 45520">
+          <input type="number" id="km" inputmode="numeric" placeholder="Ex : 147500">
 
           <div class="champs-duo">
             <div>
@@ -549,7 +550,7 @@
           <div class="champs-duo">
             <div>
               <label for="abo-montant">Montant (€)</label>
-              <input type="number" id="abo-montant" inputmode="decimal" step="0.01" placeholder="11,99">
+              <input type="number" id="abo-montant" inputmode="decimal" step="0.01" placeholder="Ex : 11,99">
             </div>
             <div>
               <label for="abo-periodicite">Périodicité</label>

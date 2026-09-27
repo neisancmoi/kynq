@@ -142,8 +142,23 @@ function montrerDansFeuille(nom) {
     boite.scrollTop = 0;
 }
 
+// Le champ kilométrage rappelle ton dernier compteur connu, sans le remplir à ta place
+function indiquerDernierKm() {
+    const champ = document.getElementById("km");
+    try {
+        const pleins = JSON.parse(localStorage.getItem("carburant") || "[]");
+        if (pleins.length > 0) {
+            const dernier = pleins[pleins.length - 1].km;
+            champ.placeholder = "Dernier plein : " + dernier.toLocaleString("fr-FR") + " km";
+        }
+    } catch (e) {
+        // On garde l'exemple d'origine
+    }
+}
+
 function ouvrirFeuille(nom) {
     clearTimeout(delaiFermeture);
+    if (nom === "plein") { indiquerDernierKm(); }
     montrerDansFeuille(nom || "choix");
     feuille.hidden = false;
     document.body.classList.add("feuille-active");
@@ -211,7 +226,10 @@ function initFeuille() {
         const cible = event.target.closest("[data-ouvrir]");
         if (cible) {
             if (feuille.hidden) { ouvrirFeuille(cible.dataset.ouvrir); }
-            else { montrerDansFeuille(cible.dataset.ouvrir); }
+            else {
+                if (cible.dataset.ouvrir === "plein") { indiquerDernierKm(); }
+                montrerDansFeuille(cible.dataset.ouvrir);
+            }
             return;
         }
         if (event.target.closest("[data-fermer]")) {

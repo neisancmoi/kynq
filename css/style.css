@@ -164,46 +164,44 @@ main {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
-  padding: 4px;
-  margin: 0 0 14px;
-  border-radius: 16px;
-  background: var(--surface);
-  border: 1px solid var(--bordure);
-  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.8);
+  margin: 0 -16px 16px;
+  padding: 0 16px;
+  background: var(--fond);
+  border-bottom: 1px solid var(--bordure);
 }
 
-/* La pastille qui glisse sous le sous-onglet actif */
+/* Le trait qui glisse sous le sous-onglet actif */
 .segments::before {
   content: "";
   position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc((100% - 8px) / var(--nombre, 2));
+  bottom: -1px;
+  left: 16px;
+  width: calc((100% - 32px) / var(--nombre, 2));
+  height: 2px;
   transform: translateX(calc(100% * var(--index, 0)));
-  border-radius: 12px;
+  border-radius: 2px;
   background: var(--accent);
-  transition: transform 0.35s var(--courbe);
+  transition: transform 0.3s var(--courbe);
 }
 
 .segments button {
   position: relative;
   z-index: 1;
   width: auto;
-  padding: 10px 4px;
+  padding: 13px 4px 12px;
   margin: 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--texte-secondaire);
   background: transparent;
   border: none;
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow: none;
   transition: color 0.2s;
 }
 
 .segments button.actif {
-  color: #fff;
+  color: var(--texte);
 }
 
 .panneau:not([hidden])>section {
@@ -1128,7 +1126,7 @@ button:disabled {
 /* Le bilan reste visible pendant qu'on bouge les curseurs */
 .simu-bilan {
   position: sticky;
-  top: 58px;
+  top: 52px;
   z-index: 3;
   text-align: center;
   padding: 16px;
